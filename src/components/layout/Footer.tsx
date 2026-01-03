@@ -88,7 +88,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} FlitHub. Supporting Ireland's Financial Literacy Strategy.</p>
+          <p>© 2026 AllSkills Education CLG. Supporting Ireland's Financial Literacy Strategy.</p>
           <p className="flex items-center gap-1">
             Made with <Heart className="h-4 w-4 text-primary fill-primary" /> in Ireland
           </p>
