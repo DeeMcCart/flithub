@@ -11,7 +11,7 @@ export function Footer() {
             <h3 className="font-display font-bold text-lg mb-3">About FlitHub</h3>
             <p className="text-muted-foreground text-sm leading-relaxed mb-4">
               FlitHub is Ireland's central hub for trusted, non-promotional financial literacy resources. 
-              We support educators, teachers, and community groups in delivering quality financial education 
+              We support learners, educators, and community groups in accessing quality financial education 
               aligned with Ireland's National Financial Literacy Strategy.
             </p>
             <div className="p-3 bg-muted rounded-lg border-l-4 border-primary">
@@ -38,7 +38,7 @@ export function Footer() {
               </li>
               <li>
                 <Link to="/start-here" className="text-muted-foreground hover:text-primary transition-colors">
-                  Start Here (For Teachers)
+                  Start Here
                 </Link>
               </li>
               <li>
@@ -90,7 +90,7 @@ export function Footer() {
         <div className="mt-8 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} FlitHub. Supporting Ireland's Financial Literacy Strategy.</p>
           <p className="flex items-center gap-1">
-            Made with <Heart className="h-4 w-4 text-primary fill-primary" /> for Irish educators
+            Made with <Heart className="h-4 w-4 text-primary fill-primary" /> in Ireland
           </p>
         </div>
       </div>
