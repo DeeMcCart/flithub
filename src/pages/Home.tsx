@@ -44,12 +44,12 @@ export default function HomePage() {
             
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
               Trusted Resources for{' '}
-              <span className="text-primary">Financial Education</span>
+              <span className="text-primary">Ireland's Financial Literacy</span>
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               A curated collection of non-promotional, quality-reviewed financial literacy resources 
-              for educators, teachers, and community groups across Ireland.
+              for everyone—learners, educators, and community groups across Ireland.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -62,7 +62,7 @@ export default function HomePage() {
               <Button asChild variant="outline" size="lg" className="gap-2">
                 <Link to="/start-here">
                   <GraduationCap className="h-5 w-5" />
-                  For Educators
+                  Start Here
                 </Link>
               </Button>
             </div>
@@ -143,7 +143,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">Featured Resources</h2>
-            <p className="text-muted-foreground">Hand-picked quality resources for educators</p>
+            <p className="text-muted-foreground">Hand-picked quality resources to get you started</p>
           </div>
           <Button asChild variant="outline" className="hidden md:flex gap-2">
             <Link to="/resources">
@@ -177,19 +177,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* For Educators CTA */}
+      {/* Start Here CTA */}
       <section className="container py-12">
         <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
           <CardContent className="p-8 md:p-12">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="flex-1 text-center md:text-left">
                 <h2 className="font-display text-2xl md:text-3xl font-bold mb-4">
-                  New to Teaching Financial Literacy?
+                  New to Financial Literacy?
                 </h2>
                 <p className="text-muted-foreground mb-6 max-w-xl">
                   Our "Start Here" guide provides plain-language core concepts and practical guidance 
-                  for non-specialist teachers. Discover how to integrate financial education into 
-                  your existing subjects.
+                  for learners and educators alike. Discover the key topics that will help you build 
+                  financial confidence.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                   <Button asChild size="lg">
@@ -222,14 +222,14 @@ export default function HomePage() {
             </h2>
             <p className="text-muted-foreground mb-6">
               FlitHub is designed to support the national strategy by improving coordination and visibility 
-              of financial education tools, facilitating systematic integration for teachers, and ensuring 
-              resources reach priority groups including women, older adults, migrants, and those with 
-              lower financial literacy.
+              of financial education tools, making resources accessible to everyone, and ensuring 
+              they reach priority groups including women, older adults, migrants, and those building 
+              their financial confidence.
             </p>
             <div className="flex flex-wrap justify-center gap-2">
-              <Badge variant="secondary">Teacher Support</Badge>
+              <Badge variant="secondary">For Everyone</Badge>
               <Badge variant="secondary">Priority Groups</Badge>
-              <Badge variant="secondary">Curriculum Aligned</Badge>
+              <Badge variant="secondary">Irish Focused</Badge>
               <Badge variant="secondary">Quality Assured</Badge>
             </div>
           </div>

@@ -90,27 +90,27 @@ export default function StartHerePage() {
           <div className="max-w-3xl">
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
               <GraduationCap className="h-3 w-3 mr-1" />
-              For Educators
+              Getting Started
             </Badge>
             <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Start Here: A Guide for Educators
+              Start Here: Your Financial Literacy Guide
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              New to teaching financial literacy? This guide provides plain-language core concepts 
-              and practical guidance for non-specialist teachers. You don't need to be a finance expert 
-              to help your learners develop essential money skills.
+              New to financial literacy? This guide provides plain-language core concepts 
+              for learners and educators alike. You don't need a finance background 
+              to build essential money skills.
             </p>
             <div className="flex flex-wrap gap-3">
               <Badge variant="outline">No finance background needed</Badge>
-              <Badge variant="outline">Practical classroom ideas</Badge>
-              <Badge variant="outline">Curriculum-aligned</Badge>
+              <Badge variant="outline">Practical guidance</Badge>
+              <Badge variant="outline">Irish-focused</Badge>
             </div>
           </div>
         </div>
       </section>
 
       <div className="container py-12">
-        {/* Our Promise to Educators */}
+        {/* Our Promise */}
         <Card className="mb-12 border-l-4 border-l-primary">
           <CardContent className="p-6 md:p-8">
             <div className="flex items-start gap-4">
@@ -118,7 +118,7 @@ export default function StartHerePage() {
                 <Shield className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h2 className="font-display text-xl font-bold mb-2">Our Promise to Educators</h2>
+                <h2 className="font-display text-xl font-bold mb-2">Our Promise to You</h2>
                 <p className="text-muted-foreground mb-4">
                   Every resource on FlitHub is reviewed to ensure it is:
                 </p>
@@ -152,7 +152,7 @@ export default function StartHerePage() {
               Core Concepts in Plain Language
             </h2>
             <p className="text-muted-foreground">
-              Key financial literacy topics explained simply for classroom delivery
+              Key financial literacy topics explained simply
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
