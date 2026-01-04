@@ -563,7 +563,7 @@ export default function AdminProviders() {
                         <img 
                           src={provider.logo_url} 
                           alt={`${provider.name} logo`}
-                          className="h-10 w-10 rounded object-contain bg-muted"
+                          className="h-10 w-10 rounded object-contain bg-white border border-gray-200 shadow-sm"
                         />
                       ) : (
                         <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
@@ -738,7 +738,7 @@ export default function AdminProviders() {
                       <img 
                         src={formData.logoPreview} 
                         alt="Logo preview" 
-                        className="h-16 w-16 rounded object-contain bg-muted border"
+                        className="h-16 w-16 rounded object-contain bg-white border border-gray-200 shadow-sm"
                       />
                       <Button
                         type="button"
