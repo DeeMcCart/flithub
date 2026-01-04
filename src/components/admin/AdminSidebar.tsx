@@ -8,7 +8,8 @@ import {
   Building2,
   Users,
   Settings,
-  LogOut
+  LogOut,
+  PlusCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,6 +18,7 @@ import { Separator } from '@/components/ui/separator';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
+  { to: '/admin/add-resource', icon: PlusCircle, label: 'Add Resource' },
   { to: '/admin/pending', icon: Clock, label: 'Pending Review' },
   { to: '/admin/approved', icon: CheckCircle, label: 'Approved' },
   { to: '/admin/rejected', icon: XCircle, label: 'Rejected' },
