@@ -30,7 +30,7 @@ export function useResources(filters?: ResourceFilters) {
       }
       
       if (filters?.types && filters.types.length > 0) {
-        query = query.in('resource_type', filters.types);
+        query = query.in('resource_type', filters.types as any);
       }
       
       if (filters?.providerId) {
