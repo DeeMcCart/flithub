@@ -2,13 +2,9 @@
 
 export const RESOURCE_LEVELS = [
   { value: "primary", label: "School - Primary", description: "Primary school (ages 4-12)" },
-  { value: "junior_cycle", label: "Junior Cycle", description: "Junior Cycle (ages 12-15)" },
-  { value: "transition_year", label: "Transition Year", description: "TY (ages 15-16)" },
-  { value: "senior_cycle", label: "Senior Cycle", description: "Senior Cycle (ages 16-18)" },
-  { value: "lca", label: "LCA", description: "Leaving Certificate Applied" },
-  { value: "adult_community", label: "Adult/Community", description: "Adult and Community Education" },
   { value: "secondary", label: "School - Secondary", description: "Secondary school (ages 12-19)" },
-  { value: "ya", label: "Young Adult/ YouthReach", description: "Young Adult" },
+  { value: "adult_community", label: "Adult/Community", description: "Adult and Community Education" },
+  { value: "ya", label: "Young Adult/YouthReach", description: "Young Adult" },
 ] as const;
 
 export const RESOURCE_SEGMENTS = [
