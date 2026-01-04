@@ -19,6 +19,7 @@ import PendingReview from "./pages/admin/PendingReview";
 import ApprovedResources from "./pages/admin/ApprovedResources";
 import RejectedResources from "./pages/admin/RejectedResources";
 import EditResource from "./pages/admin/EditResource";
+import AdminProviders from "./pages/admin/AdminProviders";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/admin/approved" element={<ApprovedResources />} />
             <Route path="/admin/rejected" element={<RejectedResources />} />
             <Route path="/admin/resources/:id/edit" element={<EditResource />} />
+            <Route path="/admin/providers" element={<AdminProviders />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
