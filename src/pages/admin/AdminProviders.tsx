@@ -559,17 +559,20 @@ export default function AdminProviders() {
                     onClick={() => handleOpenEdit(provider)}
                   >
                     <TableCell>
-                      {provider.logo_url ? (
-                        <img 
-                          src={provider.logo_url} 
-                          alt={`${provider.name} logo`}
-                          className="h-10 w-10 rounded object-contain bg-white border border-gray-200 shadow-sm"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
-                          <Building2 className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                      )}
+                      <div className="h-10 w-10 rounded border border-border bg-[length:8px_8px] bg-[linear-gradient(45deg,hsl(var(--muted))_25%,transparent_25%),linear-gradient(-45deg,hsl(var(--muted))_25%,transparent_25%),linear-gradient(45deg,transparent_75%,hsl(var(--muted))_75%),linear-gradient(-45deg,transparent_75%,hsl(var(--muted))_75%)] [background-position:0_0,0_4px,4px_-4px,-4px_0px] flex items-center justify-center overflow-hidden">
+                        {provider.logo_url ? (
+                          <img 
+                            src={provider.logo_url} 
+                            alt={`${provider.name} logo`}
+                            className="h-full w-full object-contain p-0.5"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              (e.currentTarget.nextElementSibling as HTMLElement)?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <Building2 className={`h-5 w-5 text-muted-foreground ${provider.logo_url ? 'hidden' : ''}`} />
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
