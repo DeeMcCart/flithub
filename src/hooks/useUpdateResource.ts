@@ -30,7 +30,7 @@ export function useUpdateResource() {
         .update({
           title: updateData.title,
           description: updateData.description,
-          resource_type: updateData.resource_type,
+          resource_type: updateData.resource_type as any,
           topics: updateData.topics,
           levels: updateData.levels as any,
           segments: updateData.segments || null,

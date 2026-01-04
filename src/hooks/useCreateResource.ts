@@ -32,7 +32,7 @@ export function useCreateResource() {
           title: data.title,
           description: data.description,
           external_url: data.external_url || null,
-          resource_type: data.resource_type,
+          resource_type: data.resource_type as any,
           topics: data.topics,
           levels: data.levels as any,
           segments: data.segments || null,

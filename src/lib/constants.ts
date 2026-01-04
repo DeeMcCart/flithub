@@ -137,6 +137,7 @@ export const RESOURCE_TYPES = [
   { value: "worksheet", label: "Worksheet", icon: "FileText" },
   { value: "project_brief", label: "Project Brief", icon: "FolderOpen" },
   { value: "video", label: "Video", icon: "Video" },
+  { value: "podcast", label: "Podcast", icon: "Mic" },
   { value: "quiz", label: "Quiz", icon: "HelpCircle" },
   { value: "guide", label: "Guide", icon: "Book" },
   { value: "interactive", label: "Interactive", icon: "MousePointer" },
