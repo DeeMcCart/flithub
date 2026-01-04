@@ -8,7 +8,8 @@ import {
   CheckCircle, 
   XCircle,
   TrendingUp,
-  ArrowRight
+  ArrowRight,
+  PlusCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAllResources, usePendingResources } from '@/hooks/useAdminResources';
@@ -90,28 +91,50 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        {stats.pending > 0 && (
-          <Card className="mb-8">
+        <div className="grid gap-4 md:grid-cols-2 mb-8">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-warning" />
-                Pending Reviews
-                <Badge variant="secondary" className="ml-2">{stats.pending}</Badge>
+                <PlusCircle className="h-5 w-5 text-primary" />
+                Add Resource
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                You have {stats.pending} resource{stats.pending !== 1 ? 's' : ''} waiting for review.
+                Manually add a new financial literacy resource to the collection.
               </p>
               <Button asChild>
-                <Link to="/admin/pending">
-                  Start Reviewing
+                <Link to="/admin/add-resource">
+                  Add New Resource
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </Button>
             </CardContent>
           </Card>
-        )}
+
+          {stats.pending > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-warning" />
+                  Pending Reviews
+                  <Badge variant="secondary" className="ml-2">{stats.pending}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  You have {stats.pending} resource{stats.pending !== 1 ? 's' : ''} waiting for review.
+                </p>
+                <Button asChild variant="secondary">
+                  <Link to="/admin/pending">
+                    Start Reviewing
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
         {/* Recent Activity */}
         <Card>

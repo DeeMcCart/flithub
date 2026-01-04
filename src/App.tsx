@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AddResource from "./pages/admin/AddResource";
 import PendingReview from "./pages/admin/PendingReview";
 import ApprovedResources from "./pages/admin/ApprovedResources";
 import RejectedResources from "./pages/admin/RejectedResources";
@@ -37,6 +38,7 @@ const App = () => (
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/add-resource" element={<AddResource />} />
             <Route path="/admin/pending" element={<PendingReview />} />
             <Route path="/admin/approved" element={<ApprovedResources />} />
             <Route path="/admin/rejected" element={<RejectedResources />} />
