@@ -97,7 +97,7 @@ function SubtopicLink({
 function PillarCard({ 
   pillar 
 }: { 
-  pillar: typeof FINANCIAL_PILLARS[number];
+  pillar: typeof FINANCIAL_PILLARS[number] | typeof FRAUD_PILLAR;
 }) {
   const Icon = iconMap[pillar.icon];
   
@@ -173,6 +173,8 @@ function FraudSection() {
   );
 }
 
+const ALL_PILLARS = [...FINANCIAL_PILLARS, FRAUD_PILLAR];
+
 export function TopicPillars() {
   return (
     <section className="container py-12">
@@ -181,18 +183,13 @@ export function TopicPillars() {
           Explore by Topic
         </h2>
         <p className="text-muted-foreground">
-          Financial literacy organised around the five key pillars
+          Financial literacy organised around the six key pillars
         </p>
-      </div>
-
-      {/* Fraud Section - Prominent at top */}
-      <div className="mb-6">
-        <FraudSection />
       </div>
 
       {/* Pillars Grid */}
       <Accordion type="multiple" className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {FINANCIAL_PILLARS.map((pillar) => (
+        {ALL_PILLARS.map((pillar) => (
           <PillarCard key={pillar.id} pillar={pillar} />
         ))}
       </Accordion>
