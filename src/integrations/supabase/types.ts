@@ -264,6 +264,7 @@ export type Database = {
         | "quiz"
         | "guide"
         | "interactive"
+        | "podcast"
       review_status: "pending" | "approved" | "needs_changes" | "rejected"
     }
     CompositeTypes: {
@@ -416,6 +417,7 @@ export const Constants = {
         "quiz",
         "guide",
         "interactive",
+        "podcast",
       ],
       review_status: ["pending", "approved", "needs_changes", "rejected"],
     },
