@@ -10,6 +10,8 @@ interface AuthContextType {
   roles: AppRole[];
   isAdmin: boolean;
   signInWithMagicLink: (email: string) => Promise<{ error: Error | null }>;
+  signInWithPassword: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -78,6 +80,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   };
 
+  const signInWithPassword = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    return { error: error as Error | null };
+  };
+
+  const signUp = async (email: string, password: string) => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+      },
+    });
+    return { error: error as Error | null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setRoles([]);
@@ -93,6 +116,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       roles,
       isAdmin,
       signInWithMagicLink,
+      signInWithPassword,
+      signUp,
       signOut,
     }}>
       {children}
