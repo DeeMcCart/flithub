@@ -2,6 +2,8 @@ import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AdminSidebar } from './AdminSidebar';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import { Loader2 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -36,11 +38,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen flex bg-background">
-      <AdminSidebar />
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      <div className="flex-1 flex">
+        <AdminSidebar />
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+      </div>
+      <Footer />
     </div>
   );
 }
