@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.fetch-provider-logos]
 verify_jwt = false
+
+[functions.import-resources]
+verify_jwt = false
