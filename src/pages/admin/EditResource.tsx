@@ -24,8 +24,7 @@ import {
   RESOURCE_TYPES, 
   RESOURCE_LEVELS, 
   RESOURCE_SEGMENTS, 
-  RESOURCE_TOPICS,
-  CURRICULUM_TAGS 
+  RESOURCE_TOPICS
 } from '@/lib/constants';
 import { ResourceLevel, ResourceType } from '@/types/database';
 
@@ -46,7 +45,6 @@ export default function EditResource() {
   const [topics, setTopics] = useState<string[]>([]);
   const [levels, setLevels] = useState<ResourceLevel[]>([]);
   const [segments, setSegments] = useState<string[]>([]);
-  const [curriculumTags, setCurriculumTags] = useState<string[]>([]);
   const [providerId, setProviderId] = useState<string | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);
 
@@ -62,7 +60,6 @@ export default function EditResource() {
       setTopics(resource.topics);
       setLevels(resource.levels);
       setSegments(resource.segments || []);
-      setCurriculumTags(resource.curriculum_tags || []);
       setProviderId(resource.provider_id);
       setIsFeatured(resource.is_featured);
     }
@@ -101,7 +98,6 @@ export default function EditResource() {
         topics,
         levels,
         segments,
-        curriculum_tags: curriculumTags,
         external_url: externalUrl || undefined,
         duration_minutes: durationMinutes,
         learning_outcomes: learningOutcomes.filter(lo => lo.trim()),
@@ -353,22 +349,6 @@ export default function EditResource() {
                       onClick={() => toggleArrayValue(segments, segment, setSegments)}
                     >
                       {segment}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Curriculum Tags</Label>
-                <div className="flex flex-wrap gap-2 p-3 border rounded-md bg-muted/30 max-h-32 overflow-y-auto">
-                  {CURRICULUM_TAGS.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant={curriculumTags.includes(tag) ? 'default' : 'outline'}
-                      className="cursor-pointer"
-                      onClick={() => toggleArrayValue(curriculumTags, tag, setCurriculumTags)}
-                    >
-                      {tag}
                     </Badge>
                   ))}
                 </div>

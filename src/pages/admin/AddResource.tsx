@@ -16,7 +16,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useToast } from '@/hooks/use-toast';
 import { useCreateResource } from '@/hooks/useCreateResource';
 import { useProviders } from '@/hooks/useProviders';
-import { RESOURCE_LEVELS, RESOURCE_TYPES, RESOURCE_TOPICS, RESOURCE_SEGMENTS, CURRICULUM_TAGS } from '@/lib/constants';
+import { RESOURCE_LEVELS, RESOURCE_TYPES, RESOURCE_TOPICS, RESOURCE_SEGMENTS } from '@/lib/constants';
 import { ArrowLeft, ArrowRight, Save, Plus, X, CheckCircle } from 'lucide-react';
 
 const resourceSchema = z.object({
@@ -29,7 +29,6 @@ const resourceSchema = z.object({
   segments: z.array(z.string()).optional(),
   duration_minutes: z.number().min(1).max(500).optional(),
   learning_outcomes: z.array(z.string()).optional(),
-  curriculum_tags: z.array(z.string()).optional(),
   provider_id: z.string().optional(),
   is_featured: z.boolean().optional(),
 });
@@ -58,7 +57,6 @@ export default function AddResource() {
       levels: [],
       segments: [],
       learning_outcomes: [],
-      curriculum_tags: [],
       is_featured: false,
     },
   });
@@ -84,7 +82,7 @@ export default function AddResource() {
       case 1:
         return ['resource_type', 'topics', 'levels', 'segments'];
       case 2:
-        return ['duration_minutes', 'learning_outcomes', 'curriculum_tags', 'provider_id', 'is_featured'];
+        return ['duration_minutes', 'learning_outcomes', 'provider_id', 'is_featured'];
       default:
         return [];
     }
@@ -103,7 +101,7 @@ export default function AddResource() {
     form.setValue('learning_outcomes', current.filter((_, i) => i !== index));
   };
 
-  const toggleArrayValue = (field: 'topics' | 'levels' | 'segments' | 'curriculum_tags', value: string) => {
+  const toggleArrayValue = (field: 'topics' | 'levels' | 'segments', value: string) => {
     const current = form.getValues(field) || [];
     const updated = current.includes(value)
       ? current.filter((v) => v !== value)
@@ -123,7 +121,6 @@ export default function AddResource() {
         segments: data.segments,
         duration_minutes: data.duration_minutes,
         learning_outcomes: data.learning_outcomes,
-        curriculum_tags: data.curriculum_tags,
         provider_id: data.provider_id,
         is_featured: data.is_featured,
       },
@@ -411,28 +408,6 @@ export default function AddResource() {
                     )}
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="curriculum_tags"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel>Curriculum Tags</FormLabel>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {CURRICULUM_TAGS.map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant={watchedValues.curriculum_tags?.includes(tag) ? 'default' : 'outline'}
-                              className="cursor-pointer transition-colors"
-                              onClick={() => toggleArrayValue('curriculum_tags', tag)}
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
 
                   <FormField
                     control={form.control}
