@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useProviders } from '@/hooks/useProviders';
 import { supabase } from '@/integrations/supabase/client';
@@ -52,7 +52,9 @@ import {
   Building2,
   Globe,
   Heart,
-  Users
+  Users,
+  Upload,
+  X
 } from 'lucide-react';
 import type { Provider, ProviderType } from '@/types/database';
 
@@ -77,14 +79,22 @@ const providerIcons: Record<ProviderType, React.ReactNode> = {
   community: <Users className="h-4 w-4" />,
 };
 
-const emptyProvider: Partial<Provider> = {
+interface FormData extends Partial<Provider> {
+  logoFile?: File | null;
+  logoPreview?: string | null;
+}
+
+const emptyProvider: FormData = {
   name: '',
   description: '',
   provider_type: 'independent',
   country: 'Ireland',
   website_url: '',
+  logo_url: '',
   is_verified: false,
   target_audience: [],
+  logoFile: null,
+  logoPreview: null,
 };
 
 export default function AdminProviders() {
@@ -93,8 +103,10 @@ export default function AdminProviders() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
-  const [formData, setFormData] = useState<Partial<Provider>>(emptyProvider);
+  const [formData, setFormData] = useState<FormData>(emptyProvider);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenCreate = () => {
     setSelectedProvider(null);
@@ -110,10 +122,70 @@ export default function AdminProviders() {
       provider_type: provider.provider_type,
       country: provider.country,
       website_url: provider.website_url || '',
+      logo_url: provider.logo_url || '',
       is_verified: provider.is_verified || false,
       target_audience: provider.target_audience || [],
+      logoFile: null,
+      logoPreview: provider.logo_url || null,
     });
     setIsDialogOpen(true);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be less than 2MB');
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({
+        ...formData,
+        logoFile: file,
+        logoPreview: reader.result as string,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveLogo = () => {
+    setFormData({
+      ...formData,
+      logoFile: null,
+      logoPreview: null,
+      logo_url: '',
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadLogo = async (file: File, providerId: string): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${providerId}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('provider-logos')
+      .upload(fileName, file, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('provider-logos')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
   };
 
   const handleOpenDelete = (provider: Provider) => {
@@ -129,8 +201,20 @@ export default function AdminProviders() {
 
     setIsSaving(true);
     try {
+      let logoUrl = formData.logo_url || null;
+
       if (selectedProvider) {
         // Update existing provider
+        // If there's a new logo file, upload it
+        if (formData.logoFile) {
+          setIsUploading(true);
+          logoUrl = await uploadLogo(formData.logoFile, selectedProvider.id);
+          setIsUploading(false);
+        } else if (!formData.logoPreview && selectedProvider.logo_url) {
+          // Logo was removed
+          logoUrl = null;
+        }
+
         const { error } = await supabase
           .from('providers')
           .update({
@@ -139,6 +223,7 @@ export default function AdminProviders() {
             provider_type: formData.provider_type,
             country: formData.country,
             website_url: formData.website_url,
+            logo_url: logoUrl,
             is_verified: formData.is_verified,
             target_audience: formData.target_audience,
           })
@@ -147,8 +232,8 @@ export default function AdminProviders() {
         if (error) throw error;
         toast.success('Provider updated successfully');
       } else {
-        // Create new provider
-        const { error } = await supabase
+        // Create new provider first to get the ID
+        const { data: newProvider, error: createError } = await supabase
           .from('providers')
           .insert({
             name: formData.name,
@@ -158,9 +243,27 @@ export default function AdminProviders() {
             website_url: formData.website_url,
             is_verified: formData.is_verified,
             target_audience: formData.target_audience,
-          });
+          })
+          .select()
+          .single();
 
-        if (error) throw error;
+        if (createError) throw createError;
+
+        // Upload logo if provided
+        if (formData.logoFile && newProvider) {
+          setIsUploading(true);
+          logoUrl = await uploadLogo(formData.logoFile, newProvider.id);
+          setIsUploading(false);
+
+          // Update provider with logo URL
+          const { error: updateError } = await supabase
+            .from('providers')
+            .update({ logo_url: logoUrl })
+            .eq('id', newProvider.id);
+
+          if (updateError) throw updateError;
+        }
+
         toast.success('Provider created successfully');
       }
 
@@ -170,6 +273,7 @@ export default function AdminProviders() {
       toast.error(error.message || 'Failed to save provider');
     } finally {
       setIsSaving(false);
+      setIsUploading(false);
     }
   };
 
@@ -177,6 +281,14 @@ export default function AdminProviders() {
     if (!selectedProvider) return;
 
     try {
+      // Delete logo from storage if exists
+      if (selectedProvider.logo_url) {
+        const fileName = selectedProvider.logo_url.split('/').pop();
+        if (fileName) {
+          await supabase.storage.from('provider-logos').remove([fileName]);
+        }
+      }
+
       const { error } = await supabase
         .from('providers')
         .delete()
@@ -216,6 +328,7 @@ export default function AdminProviders() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[60px]">Logo</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Country</TableHead>
@@ -230,6 +343,19 @@ export default function AdminProviders() {
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => handleOpenEdit(provider)}
                   >
+                    <TableCell>
+                      {provider.logo_url ? (
+                        <img 
+                          src={provider.logo_url} 
+                          alt={`${provider.name} logo`}
+                          className="h-10 w-10 rounded object-contain bg-muted"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded bg-muted flex items-center justify-center">
+                          <Building2 className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {provider.name}
@@ -372,6 +498,56 @@ export default function AdminProviders() {
                 />
               </div>
 
+              {/* Logo Upload */}
+              <div className="space-y-2">
+                <Label>Logo</Label>
+                <div className="flex items-center gap-4">
+                  {formData.logoPreview ? (
+                    <div className="relative">
+                      <img 
+                        src={formData.logoPreview} 
+                        alt="Logo preview" 
+                        className="h-16 w-16 rounded object-contain bg-muted border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6"
+                        onClick={handleRemoveLogo}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="h-16 w-16 rounded bg-muted border border-dashed flex items-center justify-center">
+                      <Building2 className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <Input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      id="logo-upload"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {formData.logoPreview ? 'Change Logo' : 'Upload Logo'}
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG up to 2MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="is_verified">Verified</Label>
@@ -391,9 +567,9 @@ export default function AdminProviders() {
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={isSaving}>
-                {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                {selectedProvider ? 'Save Changes' : 'Create Provider'}
+              <Button onClick={handleSave} disabled={isSaving || isUploading}>
+                {(isSaving || isUploading) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {isUploading ? 'Uploading...' : selectedProvider ? 'Save Changes' : 'Create Provider'}
               </Button>
             </DialogFooter>
           </DialogContent>
