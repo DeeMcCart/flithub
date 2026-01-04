@@ -70,19 +70,28 @@ export function ResourceCard({ resource }: ResourceCardProps) {
 
       <CardFooter className="pt-3 border-t flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-3">
+          {resource.provider && (
+            <div className="flex items-center gap-2">
+              {resource.provider.logo_url ? (
+                <img 
+                  src={resource.provider.logo_url} 
+                  alt={`${resource.provider.name} logo`}
+                  className="h-5 w-5 rounded object-contain bg-muted"
+                />
+              ) : null}
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${getProviderBadgeClass(resource.provider.provider_type)}`}>
+                {resource.provider.is_verified && <CheckCircle className="h-3 w-3" />}
+                {resource.provider.name.length > 15 
+                  ? resource.provider.name.substring(0, 15) + '...' 
+                  : resource.provider.name
+                }
+              </span>
+            </div>
+          )}
           {resource.duration_minutes && (
             <span className="flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
               {resource.duration_minutes} min
-            </span>
-          )}
-          {resource.provider && (
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${getProviderBadgeClass(resource.provider.provider_type)}`}>
-              {resource.provider.is_verified && <CheckCircle className="h-3 w-3" />}
-              {resource.provider.name.length > 15 
-                ? resource.provider.name.substring(0, 15) + '...' 
-                : resource.provider.name
-              }
             </span>
           )}
         </div>
