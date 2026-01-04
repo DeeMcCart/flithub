@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Sparkles
 } from 'lucide-react';
+import heroImage from '@/assets/hero-image.png';
 
 
 
@@ -24,43 +25,58 @@ export default function HomePage() {
     <Layout>
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
-        <div className="container py-16 md:py-24">
-          <div className="max-w-3xl mx-auto text-center">
-            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
-              <Sparkles className="h-3 w-3 mr-1" />
-              Ireland's Financial Literacy Resource Hub
-            </Badge>
-            
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
-              Trusted Resources for{' '}
-              <span className="text-primary">Ireland's Financial Literacy</span>
-            </h1>
-            
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              A curated collection of non-promotional, quality-reviewed financial literacy resources 
-              for everyone—learners, educators, and community groups across Ireland.
-            </p>
+        <div className="container py-12 md:py-20">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Text Content */}
+            <div className="text-center lg:text-left order-2 lg:order-1">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+                <Sparkles className="h-3 w-3 mr-1" />
+                Ireland's Financial Literacy Resource Hub
+              </Badge>
+              
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
+                Trusted Resources for{' '}
+                <span className="text-primary">Ireland's Financial Literacy</span>
+              </h1>
+              
+              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl lg:max-w-none">
+                A curated collection of non-promotional, quality-reviewed financial literacy resources 
+                for everyone—learners, educators, and community groups across Ireland.
+              </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="gap-2">
-                <Link to="/resources">
-                  <BookOpen className="h-5 w-5" />
-                  Browse Resources
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="gap-2">
-                <Link to="/start-here">
-                  <GraduationCap className="h-5 w-5" />
-                  Start Here
-                </Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Button asChild size="lg" className="gap-2">
+                  <Link to="/resources">
+                    <BookOpen className="h-5 w-5" />
+                    Browse Resources
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="gap-2">
+                  <Link to="/start-here">
+                    <GraduationCap className="h-5 w-5" />
+                    Start Here
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Hero Image */}
+            <div className="order-1 lg:order-2">
+              <div className="relative">
+                <img 
+                  src={heroImage} 
+                  alt="Diverse group of people collaborating on financial literacy education" 
+                  className="rounded-2xl shadow-2xl w-full object-cover"
+                />
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-black/10" />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Decorative elements */}
-        <div className="absolute top-20 left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl -z-10" />
       </section>
 
       {/* Our Promise */}
