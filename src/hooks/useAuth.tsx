@@ -23,16 +23,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [rolesLoading, setRolesLoading] = useState(false);
   const [roles, setRoles] = useState<AppRole[]>([]);
 
   const fetchUserRoles = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId);
-    
-    if (!error && data) {
-      setRoles(data.map(r => r.role as AppRole));
+    setRolesLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+      
+      if (!error && data) {
+        setRoles(data.map(r => r.role as AppRole));
+      }
+    } finally {
+      setRolesLoading(false);
     }
   };
 
@@ -59,10 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
       
       if (session?.user) {
-        fetchUserRoles(session.user.id);
+        fetchUserRoles(session.user.id).finally(() => setLoading(false));
+      } else {
+        setLoading(false);
       }
     });
 

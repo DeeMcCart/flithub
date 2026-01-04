@@ -9,8 +9,9 @@ interface AdminLayoutProps {
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, roles } = useAuth();
 
+  // Wait for both auth and roles to load before showing access denied
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
