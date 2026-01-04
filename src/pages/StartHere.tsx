@@ -9,77 +9,9 @@ import {
   Users,
   CheckCircle,
   ArrowRight,
-  Lightbulb,
-  Target,
-  Heart,
   Shield,
 } from 'lucide-react';
 
-const coreConceptCards = [
-  {
-    title: 'Budgeting Basics',
-    description: 'Help learners understand income vs expenses, needs vs wants, and creating simple budgets.',
-    icon: Target,
-    color: 'bg-primary/10 text-primary',
-  },
-  {
-    title: 'Understanding Debt',
-    description: 'Explain borrowing concepts, APR, and the importance of seeking help early with debt problems.',
-    icon: Shield,
-    color: 'bg-warning/10 text-warning',
-  },
-  {
-    title: 'Consumer Rights',
-    description: 'Cover key Irish and EU consumer protections, returns policies, and making effective complaints.',
-    icon: CheckCircle,
-    color: 'bg-government/10 text-government',
-  },
-  {
-    title: 'Digital Safety',
-    description: 'Address online scams, phishing, protecting personal financial information in the digital age.',
-    icon: Shield,
-    color: 'bg-destructive/10 text-destructive',
-  },
-  {
-    title: 'Financial Wellbeing',
-    description: 'Connect financial health with overall wellbeing. Reduce money-related stress and anxiety.',
-    icon: Heart,
-    color: 'bg-success/10 text-success',
-  },
-  {
-    title: 'Tax & Employment',
-    description: 'Explain payslips, PAYE, USC, PRSI for learners entering the workforce.',
-    icon: GraduationCap,
-    color: 'bg-info/10 text-info',
-  },
-];
-
-const integrationIdeas = [
-  {
-    subject: 'Mathematics',
-    ideas: ['Percentage calculations with interest rates', 'Budgeting spreadsheets', 'Data analysis of spending patterns'],
-  },
-  {
-    subject: 'SPHE',
-    ideas: ['Financial decision-making', 'Peer pressure and spending', 'Wellbeing and money stress'],
-  },
-  {
-    subject: 'Business Studies',
-    ideas: ['Personal finance units', 'Consumer rights case studies', 'Entrepreneurship projects'],
-  },
-  {
-    subject: 'CSPE',
-    ideas: ['Consumer citizenship', 'Financial inclusion', 'Rights and responsibilities'],
-  },
-  {
-    subject: 'Transition Year',
-    ideas: ['Mini-company finances', 'Real-world budgeting simulations', 'Career and money planning'],
-  },
-  {
-    subject: 'Home Economics',
-    ideas: ['Household budgeting', 'Smart shopping', 'Value for money'],
-  },
-];
 
 export default function StartHerePage() {
   return (
@@ -145,66 +77,6 @@ export default function StartHerePage() {
           </CardContent>
         </Card>
 
-        {/* Core Concepts */}
-        <section className="mb-12">
-          <div className="mb-8">
-            <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">
-              Core Concepts in Plain Language
-            </h2>
-            <p className="text-muted-foreground">
-              Key financial literacy topics explained simply
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {coreConceptCards.map((concept) => (
-              <Card key={concept.title} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className={`w-10 h-10 rounded-lg ${concept.color} flex items-center justify-center mb-2`}>
-                    <concept.icon className="h-5 w-5" />
-                  </div>
-                  <CardTitle className="text-lg">{concept.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{concept.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Subject Integration */}
-        <section className="mb-12">
-          <div className="mb-8">
-            <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">
-              Integration Ideas by Subject
-            </h2>
-            <p className="text-muted-foreground">
-              Financial literacy doesn't need its own timetable slot—weave it into what you already teach
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {integrationIdeas.map((subject) => (
-              <Card key={subject.subject}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-primary" />
-                    {subject.subject}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {subject.ideas.map((idea, i) => (
-                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <Lightbulb className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
-                        {idea}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
 
         {/* Priority Groups */}
         <section className="mb-12">
