@@ -225,7 +225,11 @@ export default function AdminProviders() {
               </TableHeader>
               <TableBody>
                 {providers.map((provider) => (
-                  <TableRow key={provider.id}>
+                  <TableRow 
+                    key={provider.id} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleOpenEdit(provider)}
+                  >
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {provider.name}
@@ -259,7 +263,10 @@ export default function AdminProviders() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleOpenEdit(provider)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEdit(provider);
+                          }}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -267,7 +274,10 @@ export default function AdminProviders() {
                           variant="ghost"
                           size="icon"
                           className="text-destructive hover:text-destructive"
-                          onClick={() => handleOpenDelete(provider)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenDelete(provider);
+                          }}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
