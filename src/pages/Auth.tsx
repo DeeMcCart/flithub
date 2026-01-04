@@ -180,10 +180,19 @@ export default function AuthPage() {
                   </div>
                   <h3 className="font-semibold text-lg mb-2">Password Updated!</h3>
                   <p className="text-muted-foreground text-sm mb-4">
-                    Your password has been successfully updated.
+                    Your password has been successfully updated. You can now sign in with your new password.
                   </p>
-                  <Button onClick={() => window.location.href = '/'}>
-                    Go to Home
+                  <Button 
+                    onClick={() => {
+                      setSuccess(false);
+                      setPassword('');
+                      setConfirmPassword('');
+                      setMode('signin');
+                    }}
+                    className="gap-2"
+                  >
+                    <KeyRound className="h-4 w-4" />
+                    Sign In Now
                   </Button>
                 </div>
               ) : (
