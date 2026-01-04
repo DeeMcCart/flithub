@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Heart, ExternalLink } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 export function Footer() {
   return (
     <footer className="border-t bg-card mt-auto">
       <div className="container py-12">
-        <div className="grid gap-8 md:grid-cols-4">
+        <div className="grid gap-8 md:grid-cols-3">
           {/* About */}
           <div className="md:col-span-2">
             <h3 className="font-display font-bold text-lg mb-3">About FlitHub</h3>
@@ -45,43 +45,6 @@ export function Footer() {
                 <Link to="/submit" className="text-muted-foreground hover:text-primary transition-colors">
                   Submit a Resource
                 </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* External Resources */}
-          <div>
-            <h4 className="font-display font-semibold mb-3">Irish Resources</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a 
-                  href="https://www.ccpc.ie" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
-                >
-                  CCPC <ExternalLink className="h-3 w-3" />
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="https://www.mabs.ie" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
-                >
-                  MABS <ExternalLink className="h-3 w-3" />
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="https://www.ncca.ie" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
-                >
-                  NCCA <ExternalLink className="h-3 w-3" />
-                </a>
               </li>
             </ul>
           </div>
