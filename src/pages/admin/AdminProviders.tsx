@@ -4,6 +4,8 @@ import { useProviders } from '@/hooks/useProviders';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Table, 
   TableBody, 
@@ -112,6 +114,13 @@ export default function AdminProviders() {
   const [isImporting, setIsImporting] = useState(false);
   const [isFetchingLogos, setIsFetchingLogos] = useState(false);
   const [fetchingLogoId, setFetchingLogoId] = useState<string | null>(null);
+  const [isFetchDialogOpen, setIsFetchDialogOpen] = useState(false);
+  const [fetchProgress, setFetchProgress] = useState({
+    current: 0,
+    total: 0,
+    currentProvider: '',
+    results: [] as { name: string; status: 'success' | 'failed' | 'skipped'; error?: string }[]
+  });
   const [importJson, setImportJson] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const jsonFileInputRef = useRef<HTMLInputElement>(null);
@@ -379,41 +388,83 @@ export default function AdminProviders() {
   };
 
   const handleFetchAllLogos = async () => {
-    setIsFetchingLogos(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error('You must be logged in');
-        return;
-      }
-
-      toast.info('Fetching logos for all providers without logos. This may take a few minutes...');
-
-      const response = await supabase.functions.invoke('fetch-provider-logos', {
-        body: {}
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
-      const result = response.data;
-      queryClient.invalidateQueries({ queryKey: ['providers'] });
-
-      if (result.summary) {
-        toast.success(
-          `Logo fetch complete: ${result.summary.success} successful, ${result.summary.failed} failed, ${result.summary.skipped} skipped`,
-          { duration: 5000 }
-        );
-      } else {
-        toast.success('Logo fetch complete');
-      }
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch logos';
-      toast.error(errorMessage);
-    } finally {
-      setIsFetchingLogos(false);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error('You must be logged in');
+      return;
     }
+
+    // Get providers without logos
+    const providersToFetch = providers?.filter(p => !p.logo_url && p.website_url) || [];
+    
+    if (providersToFetch.length === 0) {
+      toast.info('All providers already have logos or no website URLs');
+      return;
+    }
+
+    setFetchProgress({
+      current: 0,
+      total: providersToFetch.length,
+      currentProvider: '',
+      results: []
+    });
+    setIsFetchDialogOpen(true);
+    setIsFetchingLogos(true);
+
+    const results: typeof fetchProgress.results = [];
+
+    for (let i = 0; i < providersToFetch.length; i++) {
+      const provider = providersToFetch[i];
+      
+      setFetchProgress(prev => ({
+        ...prev,
+        current: i + 1,
+        currentProvider: provider.name
+      }));
+
+      try {
+        const response = await supabase.functions.invoke('fetch-provider-logos', {
+          body: { providerId: provider.id }
+        });
+
+        if (response.error) {
+          results.push({ name: provider.name, status: 'failed', error: response.error.message });
+        } else {
+          const result = response.data;
+          if (result.results?.[0]?.status === 'success') {
+            results.push({ name: provider.name, status: 'success' });
+          } else {
+            results.push({ 
+              name: provider.name, 
+              status: 'failed', 
+              error: result.results?.[0]?.error || 'Unknown error' 
+            });
+          }
+        }
+      } catch (error) {
+        results.push({ 
+          name: provider.name, 
+          status: 'failed', 
+          error: error instanceof Error ? error.message : 'Unknown error' 
+        });
+      }
+
+      setFetchProgress(prev => ({
+        ...prev,
+        results: [...results]
+      }));
+    }
+
+    queryClient.invalidateQueries({ queryKey: ['providers'] });
+    setIsFetchingLogos(false);
+
+    const successCount = results.filter(r => r.status === 'success').length;
+    const failedCount = results.filter(r => r.status === 'failed').length;
+    
+    toast.success(
+      `Logo fetch complete: ${successCount} successful, ${failedCount} failed`,
+      { duration: 5000 }
+    );
   };
 
   const handleFetchSingleLogo = async (providerId: string, providerName: string) => {
@@ -828,6 +879,79 @@ export default function AdminProviders() {
               <Button onClick={handleImport} disabled={isImporting || !importJson.trim()}>
                 {isImporting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {isImporting ? 'Importing...' : 'Import Providers'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Fetch Logos Progress Dialog */}
+        <Dialog open={isFetchDialogOpen} onOpenChange={(open) => !isFetchingLogos && setIsFetchDialogOpen(open)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Fetching Provider Logos</DialogTitle>
+              <DialogDescription>
+                {isFetchingLogos 
+                  ? `Processing ${fetchProgress.current} of ${fetchProgress.total} providers...`
+                  : `Completed: ${fetchProgress.results.filter(r => r.status === 'success').length} successful, ${fetchProgress.results.filter(r => r.status === 'failed').length} failed`
+                }
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Progress</span>
+                  <span className="font-medium">{fetchProgress.current} / {fetchProgress.total}</span>
+                </div>
+                <Progress value={(fetchProgress.current / Math.max(fetchProgress.total, 1)) * 100} />
+              </div>
+
+              {isFetchingLogos && fetchProgress.currentProvider && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Fetching: {fetchProgress.currentProvider}</span>
+                </div>
+              )}
+
+              {fetchProgress.results.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm">Results</Label>
+                  <ScrollArea className="h-48 rounded border p-2">
+                    <div className="space-y-1">
+                      {fetchProgress.results.map((result, idx) => (
+                        <div 
+                          key={idx} 
+                          className={`flex items-center gap-2 text-sm py-1 ${
+                            result.status === 'success' 
+                              ? 'text-success' 
+                              : 'text-destructive'
+                          }`}
+                        >
+                          {result.status === 'success' ? (
+                            <CheckCircle className="h-3 w-3 flex-shrink-0" />
+                          ) : (
+                            <X className="h-3 w-3 flex-shrink-0" />
+                          )}
+                          <span className="truncate">{result.name}</span>
+                          {result.error && (
+                            <span className="text-xs text-muted-foreground truncate">
+                              ({result.error})
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button 
+                onClick={() => setIsFetchDialogOpen(false)} 
+                disabled={isFetchingLogos}
+              >
+                {isFetchingLogos ? 'Processing...' : 'Close'}
               </Button>
             </DialogFooter>
           </DialogContent>
