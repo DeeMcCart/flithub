@@ -45,7 +45,8 @@ export function ProviderCard({ provider }: ProviderCardProps) {
               <Badge variant="outline" className="text-xs">
                 {provider.country}
               </Badge>
-              <Badge className={`text-xs ${providerColors[provider.provider_type]}`}>
+              <Badge className={`text-xs ${providerColors[provider.provider_type]} flex items-center gap-1`}>
+                {providerIcons[provider.provider_type]}
                 {provider.provider_type.charAt(0).toUpperCase() + provider.provider_type.slice(1)}
               </Badge>
             </div>
