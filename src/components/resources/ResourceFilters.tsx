@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, X, Filter } from 'lucide-react';
+import { Search, X, Filter, ChevronDown } from 'lucide-react';
 import { RESOURCE_LEVELS, RESOURCE_TOPICS, RESOURCE_SEGMENTS, RESOURCE_TYPES } from '@/lib/constants';
 import type { ResourceFilters, ResourceLevel, ResourceType } from '@/types/database';
 import {
@@ -11,8 +11,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 interface ResourceFiltersProps {
   filters: ResourceFilters;
@@ -21,6 +27,18 @@ interface ResourceFiltersProps {
 
 export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Track which sections are open - Resource Type and Topics open by default
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    resourceType: true,
+    topics: true,
+    levels: false,
+    segments: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   const toggleLevel = (level: ResourceLevel) => {
     const current = filters.levels || [];
@@ -64,11 +82,42 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
     (filters.segments?.length || 0) +
     (filters.types?.length || 0);
 
+  const FilterSection = ({ 
+    id, 
+    title, 
+    count, 
+    children 
+  }: { 
+    id: string; 
+    title: string; 
+    count?: number; 
+    children: React.ReactNode;
+  }) => (
+    <Collapsible open={openSections[id]} onOpenChange={() => toggleSection(id)}>
+      <CollapsibleTrigger className="flex items-center justify-between w-full py-2 hover:bg-muted/50 rounded-md px-2 -mx-2 transition-colors">
+        <div className="flex items-center gap-2">
+          <h4 className="font-medium text-sm">{title}</h4>
+          {count !== undefined && count > 0 && (
+            <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+              {count}
+            </Badge>
+          )}
+        </div>
+        <ChevronDown className={cn(
+          "h-4 w-4 text-muted-foreground transition-transform duration-200",
+          openSections[id] && "rotate-180"
+        )} />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pt-3 pb-1">
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+
   const FilterContent = () => (
-    <div className="space-y-6">
-      {/* Type Filter - MOVED TO TOP */}
-      <div>
-        <h4 className="font-medium mb-3 text-sm">Resource Type</h4>
+    <div className="space-y-2">
+      {/* Resource Type - First, expanded by default */}
+      <FilterSection id="resourceType" title="Resource Type" count={filters.types?.length}>
         <div className="flex flex-wrap gap-2">
           {RESOURCE_TYPES.map(type => (
             <Badge
@@ -81,28 +130,10 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
             </Badge>
           ))}
         </div>
-      </div>
+      </FilterSection>
 
-      {/* Level Filter */}
-      <div>
-        <h4 className="font-medium mb-3 text-sm">Education Level</h4>
-        <div className="flex flex-wrap gap-2">
-          {RESOURCE_LEVELS.map(level => (
-            <Badge
-              key={level.value}
-              variant={filters.levels?.includes(level.value) ? 'default' : 'outline'}
-              className="cursor-pointer hover:bg-primary/90 transition-colors"
-              onClick={() => toggleLevel(level.value)}
-            >
-              {level.label}
-            </Badge>
-          ))}
-        </div>
-      </div>
-
-      {/* Topic Filter */}
-      <div>
-        <h4 className="font-medium mb-3 text-sm">Topics</h4>
+      {/* Topics - Second, expanded by default */}
+      <FilterSection id="topics" title="Topics" count={filters.topics?.length}>
         <div className="flex flex-wrap gap-2">
           {RESOURCE_TOPICS.map(topic => (
             <Badge
@@ -115,11 +146,26 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
             </Badge>
           ))}
         </div>
-      </div>
+      </FilterSection>
 
-      {/* Segment Filter */}
-      <div>
-        <h4 className="font-medium mb-3 text-sm">Target Audience</h4>
+      {/* Education Level - Third, collapsed by default */}
+      <FilterSection id="levels" title="Education Level" count={filters.levels?.length}>
+        <div className="flex flex-wrap gap-2">
+          {RESOURCE_LEVELS.map(level => (
+            <Badge
+              key={level.value}
+              variant={filters.levels?.includes(level.value) ? 'default' : 'outline'}
+              className="cursor-pointer hover:bg-primary/90 transition-colors"
+              onClick={() => toggleLevel(level.value)}
+            >
+              {level.label}
+            </Badge>
+          ))}
+        </div>
+      </FilterSection>
+
+      {/* Target Audience - Fourth, collapsed by default */}
+      <FilterSection id="segments" title="Target Audience" count={filters.segments?.length}>
         <div className="flex flex-wrap gap-2">
           {RESOURCE_SEGMENTS.map(segment => (
             <Badge
@@ -132,10 +178,10 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
             </Badge>
           ))}
         </div>
-      </div>
+      </FilterSection>
 
       {activeFilterCount > 0 && (
-        <Button variant="outline" onClick={clearFilters} className="w-full">
+        <Button variant="outline" onClick={clearFilters} className="w-full mt-4">
           <X className="h-4 w-4 mr-2" />
           Clear All Filters ({activeFilterCount})
         </Button>
@@ -190,12 +236,12 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
       {activeFilterCount > 0 && (
         <div className="flex flex-wrap gap-2 items-center">
           <span className="text-sm text-muted-foreground">Active filters:</span>
-          {filters.levels?.map(level => (
-            <Badge key={level} variant="secondary" className="gap-1">
-              {RESOURCE_LEVELS.find(l => l.value === level)?.label}
+          {filters.types?.map(type => (
+            <Badge key={type} variant="secondary" className="gap-1">
+              {RESOURCE_TYPES.find(t => t.value === type)?.label}
               <X 
                 className="h-3 w-3 cursor-pointer" 
-                onClick={() => toggleLevel(level)}
+                onClick={() => toggleType(type)}
               />
             </Badge>
           ))}
@@ -208,21 +254,21 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
               />
             </Badge>
           ))}
+          {filters.levels?.map(level => (
+            <Badge key={level} variant="secondary" className="gap-1">
+              {RESOURCE_LEVELS.find(l => l.value === level)?.label}
+              <X 
+                className="h-3 w-3 cursor-pointer" 
+                onClick={() => toggleLevel(level)}
+              />
+            </Badge>
+          ))}
           {filters.segments?.map(segment => (
             <Badge key={segment} variant="secondary" className="gap-1">
               {segment}
               <X 
                 className="h-3 w-3 cursor-pointer" 
                 onClick={() => toggleSegment(segment)}
-              />
-            </Badge>
-          ))}
-          {filters.types?.map(type => (
-            <Badge key={type} variant="secondary" className="gap-1">
-              {RESOURCE_TYPES.find(t => t.value === type)?.label}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => toggleType(type)}
               />
             </Badge>
           ))}
