@@ -27,18 +27,107 @@ export const RESOURCE_SEGMENTS = [
 ] as const;
 
 export const RESOURCE_TOPICS = [
-  { value: 'Budgeting', icon: 'Calculator', color: 'primary' },
-  { value: 'Earning', icon: 'Briefcase', color: 'success' },
-  { value: 'Tax', icon: 'Receipt', color: 'info' },
-  { value: 'Debt', icon: 'CreditCard', color: 'warning' },
-  { value: 'Consumer Rights', icon: 'Shield', color: 'government' },
-  { value: 'Fraud', icon: 'AlertTriangle', color: 'destructive' },
-  { value: 'Digital Finance', icon: 'Smartphone', color: 'info' },
-  { value: 'Entrepreneurship', icon: 'Lightbulb', color: 'accent' },
+  // Financial Wellbeing & Foundations
   { value: 'Financial Wellbeing', icon: 'Heart', color: 'success' },
-  { value: 'Financial Planning', icon: 'Target', color: 'primary' },
+  { value: 'Consumer Rights', icon: 'Shield', color: 'government' },
+  { value: 'Digital Finance', icon: 'Smartphone', color: 'info' },
+  // Income & Expenditure
+  { value: 'Tax', icon: 'Receipt', color: 'info' },
   { value: 'Employment', icon: 'Building', color: 'government' },
+  { value: 'Understanding Entitlements', icon: 'FileCheck', color: 'government' },
+  // Saving & Investing
+  { value: 'Saving Strategies', icon: 'PiggyBank', color: 'success' },
+  { value: 'Investment Basics', icon: 'TrendingUp', color: 'primary' },
+  // Budgeting & Money Management
+  { value: 'Budgeting', icon: 'Calculator', color: 'primary' },
+  { value: 'Spending Control', icon: 'Wallet', color: 'accent' },
+  // Borrowing & Debt
+  { value: 'Debt', icon: 'CreditCard', color: 'warning' },
+  { value: 'Credit & Loans', icon: 'Landmark', color: 'info' },
+  { value: 'When Things Go Wrong', icon: 'AlertCircle', color: 'destructive' },
+  // Fraud & Scams
+  { value: 'Recognizing Scams', icon: 'Eye', color: 'destructive' },
+  { value: 'Protecting Yourself', icon: 'ShieldCheck', color: 'destructive' },
+  { value: 'Reporting & Recovery', icon: 'FileWarning', color: 'destructive' },
+  // Legacy values for backwards compatibility
+  { value: 'Earning', icon: 'Briefcase', color: 'success' },
+  { value: 'Fraud', icon: 'AlertTriangle', color: 'destructive' },
+  { value: 'Entrepreneurship', icon: 'Lightbulb', color: 'accent' },
+  { value: 'Financial Planning', icon: 'Target', color: 'primary' },
 ] as const;
+
+export const FINANCIAL_PILLARS = [
+  {
+    id: 'wellbeing',
+    title: 'Financial Wellbeing & Foundations',
+    icon: 'Heart',
+    color: 'success',
+    description: 'Build a strong foundation for your financial life',
+    subtopics: [
+      { value: 'Financial Wellbeing', label: 'Financial Wellbeing', icon: 'Heart' },
+      { value: 'Consumer Rights', label: 'Consumer Rights', icon: 'Shield' },
+      { value: 'Digital Finance', label: 'Digital Finance', icon: 'Smartphone' },
+    ],
+  },
+  {
+    id: 'income',
+    title: 'Income & Expenditure',
+    icon: 'Briefcase',
+    color: 'info',
+    description: 'Understand your income, taxes, and entitlements',
+    subtopics: [
+      { value: 'Tax', label: 'Tax & Employment', icon: 'Receipt' },
+      { value: 'Understanding Entitlements', label: 'Understanding Entitlements', icon: 'FileCheck' },
+    ],
+  },
+  {
+    id: 'saving',
+    title: 'Saving & Investing',
+    icon: 'PiggyBank',
+    color: 'primary',
+    description: 'Grow your money through saving and investing',
+    subtopics: [
+      { value: 'Saving Strategies', label: 'Saving Strategies', icon: 'PiggyBank' },
+      { value: 'Investment Basics', label: 'Investment Basics', icon: 'TrendingUp' },
+    ],
+  },
+  {
+    id: 'budgeting',
+    title: 'Budgeting & Money Management',
+    icon: 'Calculator',
+    color: 'accent',
+    description: 'Take control of your day-to-day finances',
+    subtopics: [
+      { value: 'Budgeting', label: 'Budgeting Basics', icon: 'Calculator' },
+      { value: 'Spending Control', label: 'Spending Control', icon: 'Wallet' },
+    ],
+  },
+  {
+    id: 'debt',
+    title: 'Borrowing & Debt',
+    icon: 'CreditCard',
+    color: 'warning',
+    description: 'Navigate borrowing, credit, and debt management',
+    subtopics: [
+      { value: 'Debt', label: 'Understanding Debt', icon: 'CreditCard' },
+      { value: 'Credit & Loans', label: 'Credit & Loans', icon: 'Landmark' },
+      { value: 'When Things Go Wrong', label: 'When Things Go Wrong', icon: 'AlertCircle' },
+    ],
+  },
+] as const;
+
+export const FRAUD_PILLAR = {
+  id: 'fraud',
+  title: 'Fraud & Scams',
+  icon: 'ShieldAlert',
+  color: 'destructive',
+  description: 'Protect yourself from financial fraud and scams',
+  subtopics: [
+    { value: 'Recognizing Scams', label: 'Recognizing Scams', icon: 'Eye' },
+    { value: 'Protecting Yourself', label: 'Protecting Yourself', icon: 'ShieldCheck' },
+    { value: 'Reporting & Recovery', label: 'Reporting & Recovery', icon: 'FileWarning' },
+  ],
+} as const;
 
 export const RESOURCE_TYPES = [
   { value: 'lesson_plan', label: 'Lesson Plan', icon: 'BookOpen' },
