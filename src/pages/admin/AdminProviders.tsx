@@ -64,10 +64,10 @@ const providerTypes: { value: ProviderType; label: string }[] = [
 ];
 
 const providerColors: Record<ProviderType, string> = {
-  government: 'badge-government',
-  independent: 'badge-independent',
-  international: 'badge-international',
-  community: 'badge-community',
+  government: 'bg-[hsl(210,70%,45%)] text-white',
+  independent: 'bg-[hsl(168,55%,38%)] text-white',
+  international: 'bg-[hsl(280,60%,50%)] text-white',
+  community: 'bg-[hsl(35,85%,55%)] text-foreground',
 };
 
 const providerIcons: Record<ProviderType, React.ReactNode> = {
