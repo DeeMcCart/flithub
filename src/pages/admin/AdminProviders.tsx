@@ -55,7 +55,8 @@ import {
   Users,
   Upload,
   X,
-  FileUp
+  FileUp,
+  ImageIcon
 } from 'lucide-react';
 import type { Provider, ProviderType } from '@/types/database';
 
@@ -109,6 +110,8 @@ export default function AdminProviders() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isFetchingLogos, setIsFetchingLogos] = useState(false);
+  const [fetchingLogoId, setFetchingLogoId] = useState<string | null>(null);
   const [importJson, setImportJson] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const jsonFileInputRef = useRef<HTMLInputElement>(null);
@@ -375,6 +378,77 @@ export default function AdminProviders() {
     }
   };
 
+  const handleFetchAllLogos = async () => {
+    setIsFetchingLogos(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('You must be logged in');
+        return;
+      }
+
+      toast.info('Fetching logos for all providers without logos. This may take a few minutes...');
+
+      const response = await supabase.functions.invoke('fetch-provider-logos', {
+        body: {}
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const result = response.data;
+      queryClient.invalidateQueries({ queryKey: ['providers'] });
+
+      if (result.summary) {
+        toast.success(
+          `Logo fetch complete: ${result.summary.success} successful, ${result.summary.failed} failed, ${result.summary.skipped} skipped`,
+          { duration: 5000 }
+        );
+      } else {
+        toast.success('Logo fetch complete');
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch logos';
+      toast.error(errorMessage);
+    } finally {
+      setIsFetchingLogos(false);
+    }
+  };
+
+  const handleFetchSingleLogo = async (providerId: string, providerName: string) => {
+    setFetchingLogoId(providerId);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('You must be logged in');
+        return;
+      }
+
+      const response = await supabase.functions.invoke('fetch-provider-logos', {
+        body: { providerId }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const result = response.data;
+      queryClient.invalidateQueries({ queryKey: ['providers'] });
+
+      if (result.results?.[0]?.status === 'success') {
+        toast.success(`Logo fetched for ${providerName}`);
+      } else {
+        toast.error(result.results?.[0]?.error || 'Failed to fetch logo');
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch logo';
+      toast.error(errorMessage);
+    } finally {
+      setFetchingLogoId(null);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="p-8">
@@ -386,6 +460,18 @@ export default function AdminProviders() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleFetchAllLogos}
+              disabled={isFetchingLogos}
+            >
+              {isFetchingLogos ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <ImageIcon className="h-4 w-4 mr-2" />
+              )}
+              {isFetchingLogos ? 'Fetching...' : 'Fetch All Logos'}
+            </Button>
             <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
               <FileUp className="h-4 w-4 mr-2" />
               Bulk Import
@@ -464,6 +550,22 @@ export default function AdminProviders() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Fetch logo from website"
+                          disabled={fetchingLogoId === provider.id || !provider.website_url}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleFetchSingleLogo(provider.id, provider.name);
+                          }}
+                        >
+                          {fetchingLogoId === provider.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <ImageIcon className="h-4 w-4" />
+                          )}
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"

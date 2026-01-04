@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.import-providers]
 verify_jwt = false
+
+[functions.fetch-provider-logos]
+verify_jwt = false
