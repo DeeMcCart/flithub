@@ -66,6 +66,23 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
 
   const FilterContent = () => (
     <div className="space-y-6">
+      {/* Type Filter - MOVED TO TOP */}
+      <div>
+        <h4 className="font-medium mb-3 text-sm">Resource Type</h4>
+        <div className="flex flex-wrap gap-2">
+          {RESOURCE_TYPES.map(type => (
+            <Badge
+              key={type.value}
+              variant={filters.types?.includes(type.value) ? 'default' : 'outline'}
+              className="cursor-pointer hover:bg-primary/90 transition-colors"
+              onClick={() => toggleType(type.value)}
+            >
+              {type.label}
+            </Badge>
+          ))}
+        </div>
+      </div>
+
       {/* Level Filter */}
       <div>
         <h4 className="font-medium mb-3 text-sm">Education Level</h4>
@@ -112,23 +129,6 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
               onClick={() => toggleSegment(segment)}
             >
               {segment}
-            </Badge>
-          ))}
-        </div>
-      </div>
-
-      {/* Type Filter */}
-      <div>
-        <h4 className="font-medium mb-3 text-sm">Resource Type</h4>
-        <div className="flex flex-wrap gap-2">
-          {RESOURCE_TYPES.map(type => (
-            <Badge
-              key={type.value}
-              variant={filters.types?.includes(type.value) ? 'default' : 'outline'}
-              className="cursor-pointer hover:bg-primary/90 transition-colors"
-              onClick={() => toggleType(type.value)}
-            >
-              {type.label}
             </Badge>
           ))}
         </div>
