@@ -14,7 +14,7 @@ import { z } from 'zod';
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
-type AuthMode = 'signin' | 'signup' | 'magic-link' | 'forgot-password' | 'reset-password';
+type AuthMode = 'signin' | 'signup' | 'magic-link' | 'forgot-password' | 'reset-password' | 'set-password';
 
 export default function AuthPage() {
   const { user, loading, signInWithMagicLink, signInWithPassword, signUp, resetPassword, updatePassword } = useAuth();
@@ -27,15 +27,18 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<AuthMode>('signin');
 
-  // Check if we're in password reset mode (coming from email link)
+  // Check if we're in password reset or set password mode
   useEffect(() => {
-    if (searchParams.get('mode') === 'reset') {
+    const urlMode = searchParams.get('mode');
+    if (urlMode === 'reset') {
       setMode('reset-password');
+    } else if (urlMode === 'set-password') {
+      setMode('set-password');
     }
   }, [searchParams]);
 
-  // Redirect if already logged in (but not if resetting password)
-  if (!loading && user && mode !== 'reset-password') {
+  // Redirect if already logged in (but not if resetting/setting password)
+  if (!loading && user && mode !== 'reset-password' && mode !== 'set-password') {
     return <Navigate to="/" replace />;
   }
 
@@ -160,16 +163,21 @@ export default function AuthPage() {
     );
   }
 
-  // Password reset flow (after clicking email link)
-  if (mode === 'reset-password') {
+  // Password reset or set password flow
+  if (mode === 'reset-password' || mode === 'set-password') {
+    const isSetPassword = mode === 'set-password';
     return (
       <Layout>
         <div className="container flex items-center justify-center min-h-[60vh] py-12">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
-              <CardTitle className="font-display text-2xl">Set New Password</CardTitle>
+              <CardTitle className="font-display text-2xl">
+                {isSetPassword ? 'Set Your Password' : 'Set New Password'}
+              </CardTitle>
               <CardDescription>
-                Enter your new password below
+                {isSetPassword 
+                  ? 'Create a password for your account to sign in with email and password'
+                  : 'Enter your new password below'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -178,21 +186,20 @@ export default function AuthPage() {
                   <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle className="h-8 w-8 text-success" />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">Password Updated!</h3>
+                  <h3 className="font-semibold text-lg mb-2">
+                    {isSetPassword ? 'Password Set!' : 'Password Updated!'}
+                  </h3>
                   <p className="text-muted-foreground text-sm mb-4">
-                    Your password has been successfully updated. You can now sign in with your new password.
+                    {isSetPassword 
+                      ? 'Your password has been set. You can now sign in with your email and password.'
+                      : 'Your password has been successfully updated. You can now sign in with your new password.'}
                   </p>
                   <Button 
-                    onClick={() => {
-                      setSuccess(false);
-                      setPassword('');
-                      setConfirmPassword('');
-                      setMode('signin');
-                    }}
+                    onClick={() => window.location.href = '/'}
                     className="gap-2"
                   >
-                    <KeyRound className="h-4 w-4" />
-                    Sign In Now
+                    <CheckCircle className="h-4 w-4" />
+                    Continue to Home
                   </Button>
                 </div>
               ) : (
