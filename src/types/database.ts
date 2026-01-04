@@ -1,7 +1,7 @@
 // FLITHUB Database Types
 
 export type ProviderType = 'government' | 'independent' | 'international' | 'community';
-export type ResourceLevel = 'primary' | 'junior_cycle' | 'transition_year' | 'senior_cycle' | 'lca' | 'adult_community';
+export type ResourceLevel = 'primary' | 'junior_cycle' | 'transition_year' | 'senior_cycle' | 'lca' | 'adult_community' | 'secondary' | 'ya';
 export type ResourceType = 'lesson_plan' | 'slides' | 'worksheet' | 'project_brief' | 'video' | 'quiz' | 'guide' | 'interactive';
 export type ReviewStatus = 'pending' | 'approved' | 'needs_changes' | 'rejected';
 export type AppRole = 'admin' | 'submitter' | 'user';

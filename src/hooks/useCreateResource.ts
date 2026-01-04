@@ -34,7 +34,7 @@ export function useCreateResource() {
           external_url: data.external_url || null,
           resource_type: data.resource_type,
           topics: data.topics,
-          levels: data.levels,
+          levels: data.levels as any,
           segments: data.segments || null,
           duration_minutes: data.duration_minutes || null,
           learning_outcomes: data.learning_outcomes || null,

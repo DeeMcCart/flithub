@@ -11,12 +11,14 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { ExternalLink, Star, Building2, Loader2 } from 'lucide-react';
+import { ExternalLink, Star, Building2, Loader2, Pencil } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { RESOURCE_TYPES } from '@/lib/constants';
 
 export default function ApprovedResources() {
   const { data: resources, isLoading } = useAllResources('approved');
+  const navigate = useNavigate();
 
   const getTypeLabel = (type: string) => {
     return RESOURCE_TYPES.find(t => t.value === type)?.label || type;
@@ -57,7 +59,11 @@ export default function ApprovedResources() {
               </TableHeader>
               <TableBody>
                 {resources?.map((resource) => (
-                  <TableRow key={resource.id}>
+                  <TableRow 
+                    key={resource.id} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/admin/resources/${resource.id}/edit`)}
+                  >
                     <TableCell>
                       <div className="max-w-md">
                         <p className="font-medium truncate">{resource.title}</p>
@@ -93,13 +99,30 @@ export default function ApprovedResources() {
                       }
                     </TableCell>
                     <TableCell>
-                      {resource.external_url && (
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={resource.external_url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
+                      <div className="flex items-center gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/resources/${resource.id}/edit`);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                      )}
+                        {resource.external_url && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={(e) => e.stopPropagation()}
+                            asChild
+                          >
+                            <a href={resource.external_url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

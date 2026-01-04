@@ -7,7 +7,7 @@ export const RESOURCE_LEVELS = [
   { value: "senior_cycle", label: "Senior Cycle", description: "Senior Cycle (ages 16-18)" },
   { value: "lca", label: "LCA", description: "Leaving Certificate Applied" },
   { value: "adult_community", label: "Adult/Community", description: "Adult and Community Education" },
-  { value: "seconary", label: "School - Secondary", description: "Secondary school (ages 12-19) " },
+  { value: "secondary", label: "School - Secondary", description: "Secondary school (ages 12-19)" },
   { value: "ya", label: "Young Adult/ YouthReach", description: "Young Adult" },
 ] as const;
 
