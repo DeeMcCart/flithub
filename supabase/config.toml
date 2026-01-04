@@ -2,3 +2,6 @@ project_id = "slqwrxkqqphpkkhojjho"
 
 [functions.admin-reset-password]
 verify_jwt = false
+
+[functions.import-providers]
+verify_jwt = false

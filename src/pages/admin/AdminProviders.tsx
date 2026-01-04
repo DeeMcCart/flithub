@@ -54,7 +54,8 @@ import {
   Heart,
   Users,
   Upload,
-  X
+  X,
+  FileUp
 } from 'lucide-react';
 import type { Provider, ProviderType } from '@/types/database';
 
@@ -102,11 +103,15 @@ export default function AdminProviders() {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyProvider);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importJson, setImportJson] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const jsonFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenCreate = () => {
     setSelectedProvider(null);
@@ -298,8 +303,75 @@ export default function AdminProviders() {
       toast.success('Provider deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['providers'] });
       setIsDeleteDialogOpen(false);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to delete provider');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete provider';
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleJsonFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImportJson(reader.result as string);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleImport = async () => {
+    if (!importJson.trim()) {
+      toast.error('Please paste or upload JSON data');
+      return;
+    }
+
+    let parsedProviders;
+    try {
+      parsedProviders = JSON.parse(importJson);
+      if (!Array.isArray(parsedProviders)) {
+        throw new Error('JSON must be an array of providers');
+      }
+    } catch {
+      toast.error('Invalid JSON format');
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('You must be logged in');
+        return;
+      }
+
+      const response = await supabase.functions.invoke('import-providers', {
+        body: { providers: parsedProviders }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const result = response.data;
+      
+      queryClient.invalidateQueries({ queryKey: ['providers'] });
+      setIsImportDialogOpen(false);
+      setImportJson('');
+      
+      toast.success(
+        `Import complete: ${result.imported.length} imported, ${result.skipped.length} skipped`,
+        { duration: 5000 }
+      );
+      
+      if (result.errors.length > 0) {
+        toast.error(`${result.errors.length} errors occurred during import`);
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Import failed';
+      toast.error(errorMessage);
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -313,10 +385,16 @@ export default function AdminProviders() {
               Manage trusted resource providers
             </p>
           </div>
-          <Button onClick={handleOpenCreate}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Provider
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
+              <FileUp className="h-4 w-4 mr-2" />
+              Bulk Import
+            </Button>
+            <Button onClick={handleOpenCreate}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Provider
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (
@@ -593,6 +671,65 @@ export default function AdminProviders() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Bulk Import Dialog */}
+        <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Bulk Import Providers</DialogTitle>
+              <DialogDescription>
+                Paste JSON array of providers or upload a JSON file. New providers will be created with verified=false.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Upload JSON File</Label>
+                <div className="flex gap-2">
+                  <Input
+                    ref={jsonFileInputRef}
+                    type="file"
+                    accept=".json,.txt"
+                    onChange={handleJsonFileSelect}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Or Paste JSON</Label>
+                <Textarea
+                  value={importJson}
+                  onChange={(e) => setImportJson(e.target.value)}
+                  placeholder='[{"name": "Provider Name", "type": "Government Body", "website": "https://...", "description": "...", "targetAudience": ["Adults", "Students"]}]'
+                  rows={10}
+                  className="font-mono text-sm"
+                />
+              </div>
+
+              <div className="text-sm text-muted-foreground">
+                <p className="font-medium mb-1">Expected JSON format:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><code>name</code> (required): Provider name</li>
+                  <li><code>type</code>: e.g., "Government Body", "Charity", "International"</li>
+                  <li><code>website</code>: URL to provider's website</li>
+                  <li><code>description</code>: Brief description</li>
+                  <li><code>targetAudience</code>: Array of audience segments</li>
+                </ul>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleImport} disabled={isImporting || !importJson.trim()}>
+                {isImporting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {isImporting ? 'Importing...' : 'Import Providers'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );
