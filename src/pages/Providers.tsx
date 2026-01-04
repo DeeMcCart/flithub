@@ -141,7 +141,7 @@ export default function ProvidersPage() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="w-[250px]">Provider</TableHead>
+                            <TableHead className="w-[300px]">Provider</TableHead>
                             <TableHead className="hidden md:table-cell">Country</TableHead>
                             <TableHead className="hidden lg:table-cell">Target Audience</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
@@ -151,17 +151,32 @@ export default function ProvidersPage() {
                           {typeProviders.map(provider => (
                             <TableRow key={provider.id} className="hover:bg-muted/30">
                               <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">{provider.name}</span>
-                                  {provider.is_verified && (
-                                    <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                                <div className="flex items-center gap-3">
+                                  {provider.logo_url ? (
+                                    <img 
+                                      src={provider.logo_url} 
+                                      alt={`${provider.name} logo`}
+                                      className="h-8 w-8 rounded object-contain bg-muted flex-shrink-0"
+                                    />
+                                  ) : (
+                                    <div className="h-8 w-8 rounded bg-muted flex items-center justify-center flex-shrink-0">
+                                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                                    </div>
                                   )}
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">{provider.name}</span>
+                                      {provider.is_verified && (
+                                        <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                                      )}
+                                    </div>
+                                    {provider.description && (
+                                      <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                                        {provider.description}
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
-                                {provider.description && (
-                                  <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                                    {provider.description}
-                                  </p>
-                                )}
                               </TableCell>
                               <TableCell className="hidden md:table-cell">
                                 <Badge variant="outline" className="text-xs">

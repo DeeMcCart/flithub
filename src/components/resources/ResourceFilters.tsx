@@ -19,6 +19,7 @@ import {
 import { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { useProviders } from '@/hooks/useProviders';
 
 interface ResourceFiltersProps {
   filters: ResourceFilters;
@@ -27,11 +28,13 @@ interface ResourceFiltersProps {
 
 export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: providers } = useProviders();
   
   // Track which sections are open - Resource Type and Topics open by default
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     resourceType: true,
     topics: true,
+    providers: false,
     levels: false,
     segments: false,
   });
@@ -72,6 +75,10 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
     onFiltersChange({ ...filters, types: updated });
   };
 
+  const setProvider = (providerId: string | undefined) => {
+    onFiltersChange({ ...filters, providerId });
+  };
+
   const clearFilters = () => {
     onFiltersChange({ search: filters.search });
   };
@@ -80,7 +87,8 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
     (filters.levels?.length || 0) +
     (filters.topics?.length || 0) +
     (filters.segments?.length || 0) +
-    (filters.types?.length || 0);
+    (filters.types?.length || 0) +
+    (filters.providerId ? 1 : 0);
 
   const FilterSection = ({ 
     id, 
@@ -148,7 +156,33 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
         </div>
       </FilterSection>
 
-      {/* Education Level - Third, collapsed by default */}
+      {/* Providers - Third, collapsed by default */}
+      <FilterSection id="providers" title="Provider" count={filters.providerId ? 1 : 0}>
+        <div className="flex flex-wrap gap-2">
+          {filters.providerId && (
+            <Badge
+              variant="default"
+              className="cursor-pointer hover:bg-primary/90 transition-colors gap-1"
+              onClick={() => setProvider(undefined)}
+            >
+              {providers?.find(p => p.id === filters.providerId)?.name || 'Selected'}
+              <X className="h-3 w-3" />
+            </Badge>
+          )}
+          {providers?.filter(p => p.id !== filters.providerId).map(provider => (
+            <Badge
+              key={provider.id}
+              variant="outline"
+              className="cursor-pointer hover:bg-primary/90 transition-colors"
+              onClick={() => setProvider(provider.id)}
+            >
+              {provider.name}
+            </Badge>
+          ))}
+        </div>
+      </FilterSection>
+
+      {/* Education Level - Fourth, collapsed by default */}
       <FilterSection id="levels" title="Education Level" count={filters.levels?.length}>
         <div className="flex flex-wrap gap-2">
           {RESOURCE_LEVELS.map(level => (
@@ -164,7 +198,7 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
         </div>
       </FilterSection>
 
-      {/* Target Audience - Fourth, collapsed by default */}
+      {/* Target Audience - Fifth, collapsed by default */}
       <FilterSection id="segments" title="Target Audience" count={filters.segments?.length}>
         <div className="flex flex-wrap gap-2">
           {RESOURCE_SEGMENTS.map(segment => (
@@ -272,6 +306,15 @@ export function ResourceFiltersPanel({ filters, onFiltersChange }: ResourceFilte
               />
             </Badge>
           ))}
+          {filters.providerId && (
+            <Badge variant="secondary" className="gap-1">
+              {providers?.find(p => p.id === filters.providerId)?.name || 'Provider'}
+              <X 
+                className="h-3 w-3 cursor-pointer" 
+                onClick={() => setProvider(undefined)}
+              />
+            </Badge>
+          )}
         </div>
       )}
     </div>
