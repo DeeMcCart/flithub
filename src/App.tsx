@@ -12,6 +12,12 @@ import StartHere from "./pages/StartHere";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import PendingReview from "./pages/admin/PendingReview";
+import ApprovedResources from "./pages/admin/ApprovedResources";
+import RejectedResources from "./pages/admin/RejectedResources";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -28,6 +34,13 @@ const App = () => (
             <Route path="/providers" element={<Providers />} />
             <Route path="/start-here" element={<StartHere />} />
             <Route path="/auth" element={<Auth />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/pending" element={<PendingReview />} />
+            <Route path="/admin/approved" element={<ApprovedResources />} />
+            <Route path="/admin/rejected" element={<RejectedResources />} />
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
