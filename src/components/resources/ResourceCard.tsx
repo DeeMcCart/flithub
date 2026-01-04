@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Clock, BookOpen, ExternalLink, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Star, Clock, ExternalLink, CheckCircle } from 'lucide-react';
 import type { Resource } from '@/types/database';
 import { RESOURCE_LEVELS, RESOURCE_TYPES } from '@/lib/constants';
 
@@ -78,17 +79,37 @@ export function ResourceCard({ resource }: ResourceCardProps) {
           {resource.provider && (
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${getProviderBadgeClass(resource.provider.provider_type)}`}>
               {resource.provider.is_verified && <CheckCircle className="h-3 w-3" />}
-              {resource.provider.name.length > 20 
-                ? resource.provider.name.substring(0, 20) + '...' 
+              {resource.provider.name.length > 15 
+                ? resource.provider.name.substring(0, 15) + '...' 
                 : resource.provider.name
               }
             </span>
           )}
         </div>
         
-        <div className="flex items-center gap-1">
-          <Star className="h-3.5 w-3.5 fill-accent text-accent" />
-          <span>4.5</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Star className="h-3.5 w-3.5 fill-accent text-accent" />
+            <span>4.5</span>
+          </div>
+          {resource.external_url && (
+            <Button 
+              size="sm" 
+              variant="default"
+              className="h-7 text-xs gap-1"
+              asChild
+              onClick={(e) => e.stopPropagation()}
+            >
+              <a 
+                href={resource.external_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                Access
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>
