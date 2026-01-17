@@ -43,6 +43,7 @@ export type Database = {
       }
       providers: {
         Row: {
+          category: string | null
           country: string
           created_at: string | null
           description: string | null
@@ -51,11 +52,13 @@ export type Database = {
           logo_url: string | null
           name: string
           provider_type: Database["public"]["Enums"]["provider_type"]
+          provider_url: string | null
           target_audience: string[] | null
           updated_at: string | null
           website_url: string | null
         }
         Insert: {
+          category?: string | null
           country?: string
           created_at?: string | null
           description?: string | null
@@ -64,11 +67,13 @@ export type Database = {
           logo_url?: string | null
           name: string
           provider_type: Database["public"]["Enums"]["provider_type"]
+          provider_url?: string | null
           target_audience?: string[] | null
           updated_at?: string | null
           website_url?: string | null
         }
         Update: {
+          category?: string | null
           country?: string
           created_at?: string | null
           description?: string | null
@@ -77,6 +82,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           provider_type?: Database["public"]["Enums"]["provider_type"]
+          provider_url?: string | null
           target_audience?: string[] | null
           updated_at?: string | null
           website_url?: string | null

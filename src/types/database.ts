@@ -11,9 +11,11 @@ export interface Provider {
   name: string;
   country: string;
   provider_type: ProviderType;
+  category: string | null;
   description: string | null;
   target_audience: string[] | null;
   website_url: string | null;
+  provider_url: string | null;
   logo_url: string | null;
   is_verified: boolean;
   created_at: string;
