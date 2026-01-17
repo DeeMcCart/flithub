@@ -91,10 +91,12 @@ interface FormData extends Partial<Provider> {
 
 const emptyProvider: FormData = {
   name: '',
+  category: '',
   description: '',
   provider_type: 'independent',
   country: 'Ireland',
   website_url: '',
+  provider_url: '',
   logo_url: '',
   is_verified: false,
   target_audience: [],
@@ -136,10 +138,12 @@ export default function AdminProviders() {
     setSelectedProvider(provider);
     setFormData({
       name: provider.name,
+      category: provider.category || '',
       description: provider.description || '',
       provider_type: provider.provider_type,
       country: provider.country,
       website_url: provider.website_url || '',
+      provider_url: provider.provider_url || '',
       logo_url: provider.logo_url || '',
       is_verified: provider.is_verified || false,
       target_audience: provider.target_audience || [],
@@ -237,10 +241,12 @@ export default function AdminProviders() {
           .from('providers')
           .update({
             name: formData.name,
+            category: formData.category || null,
             description: formData.description,
             provider_type: formData.provider_type,
             country: formData.country,
             website_url: formData.website_url,
+            provider_url: formData.provider_url || null,
             logo_url: logoUrl,
             is_verified: formData.is_verified,
             target_audience: formData.target_audience,
@@ -255,10 +261,12 @@ export default function AdminProviders() {
           .from('providers')
           .insert({
             name: formData.name,
+            category: formData.category || null,
             description: formData.description,
             provider_type: formData.provider_type as ProviderType,
             country: formData.country || 'Ireland',
             website_url: formData.website_url,
+            provider_url: formData.provider_url || null,
             is_verified: formData.is_verified,
             target_audience: formData.target_audience,
           })
@@ -546,6 +554,7 @@ export default function AdminProviders() {
                 <TableRow>
                   <TableHead className="w-[60px]">Logo</TableHead>
                   <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Country</TableHead>
                   <TableHead>Verified</TableHead>
@@ -573,6 +582,15 @@ export default function AdminProviders() {
                           <CheckCircle className="h-4 w-4 text-success" />
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {provider.category ? (
+                        <Badge variant="outline" className="text-xs">
+                          {provider.category}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge className={providerColors[provider.provider_type]}>
@@ -714,7 +732,20 @@ export default function AdminProviders() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="website_url">Website URL</Label>
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  value={formData.category || ''}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  placeholder="e.g., Schools Education, Consumer Rights"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Sub-area of the provider (allows multiple entries per organization)
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="website_url">Main Website URL</Label>
                 <Input
                   id="website_url"
                   type="url"
@@ -722,6 +753,20 @@ export default function AdminProviders() {
                   onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
                   placeholder="https://example.com"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="provider_url">Specific Page URL</Label>
+                <Input
+                  id="provider_url"
+                  type="url"
+                  value={formData.provider_url || ''}
+                  onChange={(e) => setFormData({ ...formData, provider_url: e.target.value })}
+                  placeholder="https://example.com/schools"
+                />
+                <p className="text-xs text-muted-foreground">
+                  URL for this specific category/area (optional)
+                </p>
               </div>
 
               {/* Logo Upload */}
