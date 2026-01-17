@@ -46,6 +46,7 @@ import {
   ThumbsDown,
   Upload,
   FileJson,
+  FileSpreadsheet,
   AlertTriangle
 } from 'lucide-react';
 import type { Provider, ProviderType } from '@/types/database';
@@ -69,12 +70,15 @@ export default function ProviderReview() {
   const queryClient = useQueryClient();
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [importJson, setImportJson] = useState('');
+  const [importCsv, setImportCsv] = useState('');
+  const [importFormat, setImportFormat] = useState<'json' | 'csv'>('csv');
   const [isImporting, setIsImporting] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const jsonFileInputRef = useRef<HTMLInputElement>(null);
+  const csvFileInputRef = useRef<HTMLInputElement>(null);
 
   const pendingProviders = providers?.filter(p => !p.is_verified) || [];
   const approvedProviders = providers?.filter(p => p.is_verified) || [];
@@ -90,21 +94,118 @@ export default function ProviderReview() {
     reader.readAsText(file);
   };
 
-  const handleImport = async () => {
-    if (!importJson.trim()) {
-      toast.error('Please paste or upload JSON data');
-      return;
-    }
+  const handleCsvFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImportCsv(reader.result as string);
+    };
+    reader.readAsText(file);
+  };
 
-    let parsedProviders;
-    try {
-      parsedProviders = JSON.parse(importJson);
-      if (!Array.isArray(parsedProviders)) {
-        throw new Error('JSON must be an array of providers');
+  const parseCsvToProviders = (csvText: string) => {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) {
+      throw new Error('CSV must have a header row and at least one data row');
+    }
+    
+    // Parse header row
+    const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim());
+    
+    // Required: name column
+    const nameIdx = headers.findIndex(h => h === 'name');
+    if (nameIdx === -1) {
+      throw new Error('CSV must have a "name" column');
+    }
+    
+    // Optional columns
+    const typeIdx = headers.findIndex(h => h === 'type');
+    const websiteIdx = headers.findIndex(h => h === 'website');
+    const descriptionIdx = headers.findIndex(h => h === 'description');
+    const targetAudienceIdx = headers.findIndex(h => h === 'targetaudience' || h === 'target_audience' || h === 'target audience');
+    
+    // Parse data rows
+    const providers = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = parseCSVLine(lines[i]);
+      if (values.length === 0 || !values[nameIdx]?.trim()) continue;
+      
+      providers.push({
+        name: values[nameIdx]?.trim() || '',
+        type: typeIdx >= 0 ? values[typeIdx]?.trim() : undefined,
+        website: websiteIdx >= 0 ? values[websiteIdx]?.trim() : undefined,
+        description: descriptionIdx >= 0 ? values[descriptionIdx]?.trim() : undefined,
+        targetAudience: targetAudienceIdx >= 0 ? values[targetAudienceIdx]?.trim() : undefined,
+      });
+    }
+    
+    return providers;
+  };
+
+  // Simple CSV line parser that handles quoted fields
+  const parseCSVLine = (line: string): string[] => {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        result.push(current);
+        current = '';
+      } else {
+        current += char;
       }
-    } catch {
-      toast.error('Invalid JSON format');
-      return;
+    }
+    result.push(current);
+    
+    return result;
+  };
+
+  const handleImport = async () => {
+    let parsedProviders;
+    
+    if (importFormat === 'csv') {
+      if (!importCsv.trim()) {
+        toast.error('Please paste or upload CSV data');
+        return;
+      }
+      
+      try {
+        parsedProviders = parseCsvToProviders(importCsv);
+        if (parsedProviders.length === 0) {
+          throw new Error('No valid providers found in CSV');
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Invalid CSV format';
+        toast.error(message);
+        return;
+      }
+    } else {
+      if (!importJson.trim()) {
+        toast.error('Please paste or upload JSON data');
+        return;
+      }
+
+      try {
+        parsedProviders = JSON.parse(importJson);
+        if (!Array.isArray(parsedProviders)) {
+          throw new Error('JSON must be an array of providers');
+        }
+      } catch {
+        toast.error('Invalid JSON format');
+        return;
+      }
     }
 
     setIsImporting(true);
@@ -128,6 +229,7 @@ export default function ProviderReview() {
       queryClient.invalidateQueries({ queryKey: ['providers'] });
       setIsImportDialogOpen(false);
       setImportJson('');
+      setImportCsv('');
       
       toast.success(
         `Import complete: ${result.imported.length} added for review, ${result.skipped.length} already exist`,
@@ -447,39 +549,99 @@ export default function ProviderReview() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <FileJson className="h-5 w-5" />
+                <Upload className="h-5 w-5" />
                 Import Providers for Review
               </DialogTitle>
               <DialogDescription>
-                Import providers from JSON or Google Sheets export. New providers will be added 
+                Import providers from CSV (Google Sheets) or JSON. New providers will be added 
                 as "pending" for your review. Existing providers will be skipped.
               </DialogDescription>
             </DialogHeader>
             
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <input
-                  ref={jsonFileInputRef}
-                  type="file"
-                  accept=".json"
-                  onChange={handleJsonFileSelect}
-                  className="hidden"
-                />
-                <Button
-                  variant="outline"
-                  onClick={() => jsonFileInputRef.current?.click()}
-                  className="flex-1"
-                >
-                  <FileUp className="h-4 w-4 mr-2" />
-                  Upload JSON File
-                </Button>
-              </div>
+            <Tabs value={importFormat} onValueChange={(v) => setImportFormat(v as 'csv' | 'json')} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="csv" className="gap-2">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  CSV / Google Sheets
+                </TabsTrigger>
+                <TabsTrigger value="json" className="gap-2">
+                  <FileJson className="h-4 w-4" />
+                  JSON
+                </TabsTrigger>
+              </TabsList>
               
-              <div className="relative">
-                <Textarea
-                  value={importJson}
-                  onChange={(e) => setImportJson(e.target.value)}
-                  placeholder={`Paste JSON array here, e.g.:
+              <TabsContent value="csv" className="space-y-4 mt-4">
+                <div className="flex gap-2">
+                  <input
+                    ref={csvFileInputRef}
+                    type="file"
+                    accept=".csv,.tsv,.txt"
+                    onChange={handleCsvFileSelect}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => csvFileInputRef.current?.click()}
+                    className="flex-1"
+                  >
+                    <FileUp className="h-4 w-4 mr-2" />
+                    Upload CSV File
+                  </Button>
+                </div>
+                
+                <div className="relative">
+                  <Textarea
+                    value={importCsv}
+                    onChange={(e) => setImportCsv(e.target.value)}
+                    placeholder={`Paste CSV here (Google Sheets: File → Download → CSV):
+
+name,type,website,description,targetAudience
+CCPC,government body,https://ccpc.ie,Consumer protection agency,"adults, families"
+MABS,independent/charity,https://mabs.ie,Debt advice service,general public`}
+                    className="min-h-[180px] font-mono text-sm"
+                  />
+                </div>
+                
+                <Card className="bg-muted/50">
+                  <CardHeader className="py-3">
+                    <CardTitle className="text-sm">CSV Column Headers</CardTitle>
+                  </CardHeader>
+                  <CardContent className="py-0 pb-3">
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li><code className="bg-muted px-1 rounded">name</code> - Required</li>
+                      <li><code className="bg-muted px-1 rounded">type</code> - government body, independent/charity, etc.</li>
+                      <li><code className="bg-muted px-1 rounded">website</code> - Full URL</li>
+                      <li><code className="bg-muted px-1 rounded">description</code> - Provider description</li>
+                      <li><code className="bg-muted px-1 rounded">targetAudience</code> - Comma-separated values</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="json" className="space-y-4 mt-4">
+                <div className="flex gap-2">
+                  <input
+                    ref={jsonFileInputRef}
+                    type="file"
+                    accept=".json"
+                    onChange={handleJsonFileSelect}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => jsonFileInputRef.current?.click()}
+                    className="flex-1"
+                  >
+                    <FileUp className="h-4 w-4 mr-2" />
+                    Upload JSON File
+                  </Button>
+                </div>
+                
+                <div className="relative">
+                  <Textarea
+                    value={importJson}
+                    onChange={(e) => setImportJson(e.target.value)}
+                    placeholder={`Paste JSON array here, e.g.:
 [
   {
     "name": "Provider Name",
@@ -489,31 +651,35 @@ export default function ProviderReview() {
     "targetAudience": ["adults", "students"]
   }
 ]`}
-                  className="min-h-[200px] font-mono text-sm"
-                />
-              </div>
-              
-              <Card className="bg-muted/50">
-                <CardHeader className="py-3">
-                  <CardTitle className="text-sm">Supported Fields</CardTitle>
-                </CardHeader>
-                <CardContent className="py-0 pb-3">
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    <li><code className="bg-muted px-1 rounded">name</code> - Required</li>
-                    <li><code className="bg-muted px-1 rounded">type</code> - government, independent, community, international</li>
-                    <li><code className="bg-muted px-1 rounded">website</code> - Website URL</li>
-                    <li><code className="bg-muted px-1 rounded">description</code> - Provider description</li>
-                    <li><code className="bg-muted px-1 rounded">targetAudience</code> - Array or comma-separated string</li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
+                    className="min-h-[180px] font-mono text-sm"
+                  />
+                </div>
+                
+                <Card className="bg-muted/50">
+                  <CardHeader className="py-3">
+                    <CardTitle className="text-sm">Supported Fields</CardTitle>
+                  </CardHeader>
+                  <CardContent className="py-0 pb-3">
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li><code className="bg-muted px-1 rounded">name</code> - Required</li>
+                      <li><code className="bg-muted px-1 rounded">type</code> - government, independent, community, international</li>
+                      <li><code className="bg-muted px-1 rounded">website</code> - Website URL</li>
+                      <li><code className="bg-muted px-1 rounded">description</code> - Provider description</li>
+                      <li><code className="bg-muted px-1 rounded">targetAudience</code> - Array or comma-separated string</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleImport} disabled={isImporting || !importJson.trim()}>
+              <Button 
+                onClick={handleImport} 
+                disabled={isImporting || (importFormat === 'csv' ? !importCsv.trim() : !importJson.trim())}
+              >
                 {isImporting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
