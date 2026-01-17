@@ -28,7 +28,9 @@ const typeMapping: Record<string, string> = {
 interface ImportProvider {
   name: string;
   type?: string;
+  category?: string;
   website?: string;
+  providerUrl?: string;
   description?: string;
   targetAudience?: string[] | string;
 }
@@ -96,19 +98,21 @@ Deno.serve(async (req) => {
 
     console.log(`Processing ${importProviders.length} providers for import`);
 
-    // Fetch existing providers for duplicate detection
+    // Fetch existing providers for duplicate detection (now includes category for uniqueness)
     const { data: existingProviders, error: fetchError } = await supabase
       .from('providers')
-      .select('name');
+      .select('name, category');
 
     if (fetchError) {
       console.error('Error fetching existing providers:', fetchError);
       throw fetchError;
     }
 
-    // Normalize names for comparison
-    const existingNames = new Set(
-      (existingProviders || []).map(p => p.name.toLowerCase().trim())
+    // Normalize names + category for comparison (allows same name with different categories)
+    const existingKeys = new Set(
+      (existingProviders || []).map(p => 
+        `${p.name.toLowerCase().trim()}|${(p.category || '').toLowerCase().trim()}`
+      )
     );
 
     const result: ImportResult = {
@@ -120,14 +124,16 @@ Deno.serve(async (req) => {
     // Process each provider
     for (const provider of importProviders) {
       const normalizedName = provider.name?.toLowerCase().trim();
+      const normalizedCategory = (provider.category || '').toLowerCase().trim();
+      const providerKey = `${normalizedName}|${normalizedCategory}`;
       
       if (!provider.name?.trim()) {
         result.errors.push({ name: 'Unknown', error: 'Missing name' });
         continue;
       }
 
-      if (existingNames.has(normalizedName)) {
-        result.skipped.push({ name: provider.name, reason: 'Already exists' });
+      if (existingKeys.has(providerKey)) {
+        result.skipped.push({ name: `${provider.name}${provider.category ? ` (${provider.category})` : ''}`, reason: 'Already exists' });
         continue;
       }
 
@@ -148,7 +154,9 @@ Deno.serve(async (req) => {
         .insert({
           name: provider.name.trim(),
           provider_type: providerType,
+          category: provider.category?.trim() || null,
           website_url: provider.website || null,
+          provider_url: provider.providerUrl || null,
           description: provider.description || null,
           target_audience: targetAudience.length > 0 ? targetAudience : null,
           is_verified: false,
@@ -159,9 +167,9 @@ Deno.serve(async (req) => {
         console.error(`Error inserting provider ${provider.name}:`, insertError);
         result.errors.push({ name: provider.name, error: insertError.message });
       } else {
-        result.imported.push(provider.name);
-        // Add to existing names to prevent duplicates within same batch
-        existingNames.add(normalizedName);
+        result.imported.push(`${provider.name}${provider.category ? ` (${provider.category})` : ''}`);
+        // Add to existing keys to prevent duplicates within same batch
+        existingKeys.add(providerKey);
       }
     }
 

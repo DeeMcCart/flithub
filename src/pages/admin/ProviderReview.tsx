@@ -122,7 +122,9 @@ export default function ProviderReview() {
     
     // Optional columns
     const typeIdx = headers.findIndex(h => h === 'type');
+    const categoryIdx = headers.findIndex(h => h === 'category');
     const websiteIdx = headers.findIndex(h => h === 'website');
+    const providerUrlIdx = headers.findIndex(h => h === 'providerurl' || h === 'provider_url' || h === 'provider url');
     const descriptionIdx = headers.findIndex(h => h === 'description');
     const targetAudienceIdx = headers.findIndex(h => h === 'targetaudience' || h === 'target_audience' || h === 'target audience');
     
@@ -135,7 +137,9 @@ export default function ProviderReview() {
       providers.push({
         name: values[nameIdx]?.trim() || '',
         type: typeIdx >= 0 ? values[typeIdx]?.trim() : undefined,
+        category: categoryIdx >= 0 ? values[categoryIdx]?.trim() : undefined,
         website: websiteIdx >= 0 ? values[websiteIdx]?.trim() : undefined,
+        providerUrl: providerUrlIdx >= 0 ? values[providerUrlIdx]?.trim() : undefined,
         description: descriptionIdx >= 0 ? values[descriptionIdx]?.trim() : undefined,
         targetAudience: targetAudienceIdx >= 0 ? values[targetAudienceIdx]?.trim() : undefined,
       });
@@ -595,9 +599,9 @@ export default function ProviderReview() {
                     onChange={(e) => setImportCsv(e.target.value)}
                     placeholder={`Paste CSV here (Google Sheets: File → Download → CSV):
 
-name,type,website,description,targetAudience
-CCPC,government body,https://ccpc.ie,Consumer protection agency,"adults, families"
-MABS,independent/charity,https://mabs.ie,Debt advice service,general public`}
+name,category,type,website,providerUrl,description,targetAudience
+CCPC,Schools Education,government body,https://ccpc.ie,https://ccpc.ie/schools,Schools programme,"Primary, Secondary"
+CCPC,Consumer Rights,government body,https://ccpc.ie,https://ccpc.ie/consumers,Consumer protection,Adults`}
                     className="min-h-[180px] font-mono text-sm"
                   />
                 </div>
@@ -608,11 +612,13 @@ MABS,independent/charity,https://mabs.ie,Debt advice service,general public`}
                   </CardHeader>
                   <CardContent className="py-0 pb-3">
                     <ul className="text-xs text-muted-foreground space-y-1">
-                      <li><code className="bg-muted px-1 rounded">name</code> - Required</li>
+                      <li><code className="bg-muted px-1 rounded">name</code> - Required (provider organization name)</li>
+                      <li><code className="bg-muted px-1 rounded">category</code> - Sub-area (e.g., "Schools Education", "Consumer Rights")</li>
                       <li><code className="bg-muted px-1 rounded">type</code> - government body, independent/charity, etc.</li>
-                      <li><code className="bg-muted px-1 rounded">website</code> - Full URL</li>
-                      <li><code className="bg-muted px-1 rounded">description</code> - Provider description</li>
-                      <li><code className="bg-muted px-1 rounded">targetAudience</code> - Comma-separated values</li>
+                      <li><code className="bg-muted px-1 rounded">website</code> - Main organization URL</li>
+                      <li><code className="bg-muted px-1 rounded">providerUrl</code> - Specific page URL for this category</li>
+                      <li><code className="bg-muted px-1 rounded">description</code> - Description of this category/area</li>
+                      <li><code className="bg-muted px-1 rounded">targetAudience</code> - Comma-separated audiences</li>
                     </ul>
                   </CardContent>
                 </Card>
@@ -644,11 +650,13 @@ MABS,independent/charity,https://mabs.ie,Debt advice service,general public`}
                     placeholder={`Paste JSON array here, e.g.:
 [
   {
-    "name": "Provider Name",
+    "name": "CCPC",
+    "category": "Schools Education",
     "type": "government",
-    "website": "https://example.com",
-    "description": "Description here",
-    "targetAudience": ["adults", "students"]
+    "website": "https://ccpc.ie",
+    "providerUrl": "https://ccpc.ie/schools",
+    "description": "Schools education programme",
+    "targetAudience": ["Primary", "Secondary"]
   }
 ]`}
                     className="min-h-[180px] font-mono text-sm"
@@ -661,10 +669,12 @@ MABS,independent/charity,https://mabs.ie,Debt advice service,general public`}
                   </CardHeader>
                   <CardContent className="py-0 pb-3">
                     <ul className="text-xs text-muted-foreground space-y-1">
-                      <li><code className="bg-muted px-1 rounded">name</code> - Required</li>
+                      <li><code className="bg-muted px-1 rounded">name</code> - Required (provider organization name)</li>
+                      <li><code className="bg-muted px-1 rounded">category</code> - Sub-area (e.g., "Schools Education")</li>
                       <li><code className="bg-muted px-1 rounded">type</code> - government, independent, community, international</li>
-                      <li><code className="bg-muted px-1 rounded">website</code> - Website URL</li>
-                      <li><code className="bg-muted px-1 rounded">description</code> - Provider description</li>
+                      <li><code className="bg-muted px-1 rounded">website</code> - Main organization URL</li>
+                      <li><code className="bg-muted px-1 rounded">providerUrl</code> - Specific page URL for this category</li>
+                      <li><code className="bg-muted px-1 rounded">description</code> - Description of this category/area</li>
                       <li><code className="bg-muted px-1 rounded">targetAudience</code> - Array or comma-separated string</li>
                     </ul>
                   </CardContent>
