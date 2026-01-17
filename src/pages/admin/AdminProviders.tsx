@@ -59,7 +59,8 @@ import {
   Upload,
   X,
   FileUp,
-  ImageIcon
+  ImageIcon,
+  Download
 } from 'lucide-react';
 import type { Provider, ProviderType } from '@/types/database';
 
@@ -509,6 +510,59 @@ export default function AdminProviders() {
     }
   };
 
+  const handleExportCsv = () => {
+    if (!providers || providers.length === 0) {
+      toast.error('No providers to export');
+      return;
+    }
+
+    const headers = [
+      'Name',
+      'Category',
+      'Type',
+      'Country',
+      'Website URL',
+      'Provider URL',
+      'Description',
+      'Target Audience',
+      'Verified'
+    ];
+
+    const escapeCsv = (value: string | null | undefined) => {
+      if (!value) return '';
+      const escaped = value.replace(/"/g, '""');
+      return escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')
+        ? `"${escaped}"`
+        : escaped;
+    };
+
+    const rows = providers.map(p => [
+      escapeCsv(p.name),
+      escapeCsv(p.category),
+      escapeCsv(p.provider_type),
+      escapeCsv(p.country),
+      escapeCsv(p.website_url),
+      escapeCsv(p.provider_url),
+      escapeCsv(p.description),
+      escapeCsv((p.target_audience || []).join(' | ')),
+      p.is_verified ? 'Yes' : 'No'
+    ].join(','));
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `providers-export-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success(`Exported ${providers.length} providers to CSV`);
+  };
+
   return (
     <AdminLayout>
       <div className="p-8">
@@ -520,6 +574,10 @@ export default function AdminProviders() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExportCsv}>
+              <Download className="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
             <Button 
               variant="outline" 
               onClick={handleFetchAllLogos}
