@@ -321,8 +321,13 @@ export default function ProviderReview() {
               className="h-10 w-10 flex-shrink-0"
             />
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-base line-clamp-1">{provider.name}</CardTitle>
-              <div className="flex items-center gap-2 mt-1">
+              <CardTitle className="text-base line-clamp-1">
+                {provider.name}
+                {provider.category && (
+                  <span className="text-muted-foreground font-normal"> — {provider.category}</span>
+                )}
+              </CardTitle>
+              <div className="flex flex-wrap items-center gap-1.5 mt-1">
                 <Badge 
                   variant="secondary" 
                   className={`${providerColors[provider.provider_type]} text-xs`}
@@ -330,6 +335,11 @@ export default function ProviderReview() {
                   {providerIcons[provider.provider_type]}
                   <span className="ml-1 capitalize">{provider.provider_type}</span>
                 </Badge>
+                {provider.category && (
+                  <Badge variant="outline" className="text-xs">
+                    {provider.category}
+                  </Badge>
+                )}
                 {isRejected && (
                   <Badge variant="destructive" className="text-xs">
                     <XCircle className="h-3 w-3 mr-1" />
@@ -347,16 +357,40 @@ export default function ProviderReview() {
               : (provider.description || 'No description available')}
           </p>
           
-          {provider.website_url && (
-            <a 
-              href={provider.website_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs text-primary hover:underline flex items-center gap-1 mb-3"
-            >
-              <ExternalLink className="h-3 w-3" />
-              {new URL(provider.website_url).hostname}
-            </a>
+          <div className="space-y-1 mb-3">
+            {provider.provider_url && (
+              <a 
+                href={provider.provider_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline flex items-center gap-1"
+              >
+                <ExternalLink className="h-3 w-3" />
+                {(() => { try { return new URL(provider.provider_url).pathname || provider.provider_url; } catch { return provider.provider_url; } })()}
+              </a>
+            )}
+            {provider.website_url && !provider.provider_url && (
+              <a 
+                href={provider.website_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline flex items-center gap-1"
+              >
+                <ExternalLink className="h-3 w-3" />
+                {(() => { try { return new URL(provider.website_url).hostname; } catch { return provider.website_url; } })()}
+              </a>
+            )}
+          </div>
+
+          {provider.target_audience && provider.target_audience.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-3">
+              {provider.target_audience.slice(0, 3).map((audience, i) => (
+                <Badge key={i} variant="outline" className="text-xs">{audience}</Badge>
+              ))}
+              {provider.target_audience.length > 3 && (
+                <Badge variant="outline" className="text-xs">+{provider.target_audience.length - 3}</Badge>
+              )}
+            </div>
           )}
           
           {showActions && !isRejected && (
@@ -719,12 +753,20 @@ CCPC,Consumer Rights,government body,https://ccpc.ie,https://ccpc.ie/consumers,C
                       className="h-16 w-16"
                     />
                     <div>
-                      <DialogTitle>{selectedProvider.name}</DialogTitle>
-                      <DialogDescription className="flex items-center gap-2 mt-1">
+                      <DialogTitle>
+                        {selectedProvider.name}
+                        {selectedProvider.category && (
+                          <span className="text-muted-foreground font-normal text-base"> — {selectedProvider.category}</span>
+                        )}
+                      </DialogTitle>
+                      <DialogDescription className="flex flex-wrap items-center gap-2 mt-1">
                         <Badge className={providerColors[selectedProvider.provider_type]}>
                           {providerIcons[selectedProvider.provider_type]}
                           <span className="ml-1 capitalize">{selectedProvider.provider_type}</span>
                         </Badge>
+                        {selectedProvider.category && (
+                          <Badge variant="secondary">{selectedProvider.category}</Badge>
+                        )}
                         <span>•</span>
                         <span>{selectedProvider.country}</span>
                       </DialogDescription>
@@ -740,20 +782,37 @@ CCPC,Consumer Rights,government body,https://ccpc.ie,https://ccpc.ie/consumers,C
                     </p>
                   </div>
 
-                  {selectedProvider.website_url && (
-                    <div>
-                      <h4 className="text-sm font-medium mb-1">Website</h4>
-                      <a 
-                        href={selectedProvider.website_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-primary hover:underline flex items-center gap-1"
-                      >
-                        {selectedProvider.website_url}
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </div>
-                  )}
+                  <div className="grid grid-cols-2 gap-4">
+                    {selectedProvider.website_url && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-1">Main Website</h4>
+                        <a 
+                          href={selectedProvider.website_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline flex items-center gap-1"
+                        >
+                          {(() => { try { return new URL(selectedProvider.website_url).hostname; } catch { return selectedProvider.website_url; } })()} 
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
+                    )}
+
+                    {selectedProvider.provider_url && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-1">Specific Page URL</h4>
+                        <a 
+                          href={selectedProvider.provider_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline flex items-center gap-1"
+                        >
+                          {selectedProvider.provider_url}
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
 
                   {selectedProvider.target_audience && selectedProvider.target_audience.length > 0 && (
                     <div>
