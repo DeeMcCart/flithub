@@ -27,6 +27,7 @@ export default function AuthPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<AuthMode>('signin');
+  const [recoverySessionReady, setRecoverySessionReady] = useState(false);
 
   // Check if we're in password reset or set password mode
   useEffect(() => {
@@ -37,6 +38,44 @@ export default function AuthPage() {
       setMode('set-password');
     }
   }, [searchParams]);
+
+  // For password reset/set flows, wait for the recovery session to hydrate
+  // from the URL hash before allowing the update. If it doesn't arrive within
+  // a few seconds, surface a clear error instead of "Auth session missing".
+  useEffect(() => {
+    if (mode !== 'reset-password' && mode !== 'set-password') return;
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+        setRecoverySessionReady(true);
+        setError(null);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setRecoverySessionReady(true);
+      } else {
+        timeoutId = setTimeout(() => {
+          setRecoverySessionReady((ready) => {
+            if (!ready) {
+              setError(
+                'This reset link has expired or was opened in a different browser. Please request a new password reset email.'
+              );
+            }
+            return ready;
+          });
+        }, 4000);
+      }
+    });
+
+    return () => {
+      sub.subscription.unsubscribe();
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [mode]);
 
   // Redirect if already logged in (but not if resetting/setting password)
   if (!loading && user && mode !== 'reset-password' && mode !== 'set-password') {
