@@ -116,8 +116,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
-    const redirectUrl = `${window.location.origin}/auth?mode=reset`;
-    
+    // Always send password reset emails to the production site. The Lovable
+    // preview iframe proxies fetch in a way that breaks the recovery session
+    // exchange, causing "Auth session missing!" on update. Localhost dev still
+    // uses the local origin so it can be tested without leaving the machine.
+    const origin = window.location.origin;
+    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
+    const baseUrl = isLocal ? origin : 'https://flithub.ie';
+    const redirectUrl = `${baseUrl}/auth?mode=reset`;
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
     });
