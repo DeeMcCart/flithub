@@ -22,6 +22,7 @@ import EditResource from "./pages/admin/EditResource";
 import AdminProviders from "./pages/admin/AdminProviders";
 import AdminResources from "./pages/admin/AdminResources";
 import ProviderReview from "./pages/admin/ProviderReview";
+import ProviderFeeds from "./pages/admin/ProviderFeeds";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/admin/providers" element={<AdminProviders />} />
             <Route path="/admin/resources" element={<AdminResources />} />
             <Route path="/admin/provider-review" element={<ProviderReview />} />
+            <Route path="/admin/provider-feeds" element={<ProviderFeeds />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
