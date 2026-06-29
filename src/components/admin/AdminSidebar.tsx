@@ -10,7 +10,8 @@ import {
   Settings,
   LogOut,
   PlusCircle,
-  ClipboardCheck
+  ClipboardCheck,
+  Rss
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,6 +30,7 @@ const managementItems = [
   { to: '/admin/resources', icon: FileStack, label: 'All Resources' },
   { to: '/admin/providers', icon: Building2, label: 'Providers' },
   { to: '/admin/provider-review', icon: ClipboardCheck, label: 'Provider Review' },
+  { to: '/admin/provider-feeds', icon: Rss, label: 'Provider Feeds' },
   { to: '/admin/users', icon: Users, label: 'Users' },
 ];
 

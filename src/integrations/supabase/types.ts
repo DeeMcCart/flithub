@@ -41,6 +41,115 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_feed_runs: {
+        Row: {
+          error: string | null
+          feed_id: string
+          finished_at: string | null
+          id: string
+          items_added: number | null
+          items_found: number | null
+          started_at: string
+          status: string
+          triggered_by: string | null
+        }
+        Insert: {
+          error?: string | null
+          feed_id: string
+          finished_at?: string | null
+          id?: string
+          items_added?: number | null
+          items_found?: number | null
+          started_at?: string
+          status?: string
+          triggered_by?: string | null
+        }
+        Update: {
+          error?: string | null
+          feed_id?: string
+          finished_at?: string | null
+          id?: string
+          items_added?: number | null
+          items_found?: number | null
+          started_at?: string
+          status?: string
+          triggered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_feed_runs_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "provider_feeds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_feeds: {
+        Row: {
+          created_at: string
+          default_levels: Database["public"]["Enums"]["resource_level"][]
+          default_segments: string[] | null
+          default_topics: string[]
+          feed_type: string
+          feed_url: string
+          id: string
+          is_active: boolean
+          last_error: string | null
+          last_items_added: number | null
+          last_items_found: number | null
+          last_status: string | null
+          last_synced_at: string | null
+          provider_id: string
+          resource_type: Database["public"]["Enums"]["resource_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_levels?: Database["public"]["Enums"]["resource_level"][]
+          default_segments?: string[] | null
+          default_topics?: string[]
+          feed_type?: string
+          feed_url: string
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_items_added?: number | null
+          last_items_found?: number | null
+          last_status?: string | null
+          last_synced_at?: string | null
+          provider_id: string
+          resource_type?: Database["public"]["Enums"]["resource_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_levels?: Database["public"]["Enums"]["resource_level"][]
+          default_segments?: string[] | null
+          default_topics?: string[]
+          feed_type?: string
+          feed_url?: string
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_items_added?: number | null
+          last_items_found?: number | null
+          last_status?: string | null
+          last_synced_at?: string | null
+          provider_id?: string
+          resource_type?: Database["public"]["Enums"]["resource_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_feeds_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       providers: {
         Row: {
           category: string | null
@@ -149,6 +258,7 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           segments: string[] | null
+          source_url: string | null
           submitted_by: string | null
           title: string
           topics: string[]
@@ -173,6 +283,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           segments?: string[] | null
+          source_url?: string | null
           submitted_by?: string | null
           title: string
           topics: string[]
@@ -197,6 +308,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           segments?: string[] | null
+          source_url?: string | null
           submitted_by?: string | null
           title?: string
           topics?: string[]

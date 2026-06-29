@@ -80,7 +80,7 @@ export function useUpdateResourceReview() {
 
       const { data, error } = await supabase
         .from('resources')
-        .update(updateData)
+        .update(updateData as any)
         .eq('id', resourceId)
         .select()
         .single();
