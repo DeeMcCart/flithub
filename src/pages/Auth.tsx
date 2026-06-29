@@ -280,12 +280,17 @@ export default function AuthPage() {
                   <Button 
                     type="submit" 
                     className="w-full gap-2" 
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !recoverySessionReady}
                   >
                     {isSubmitting ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Updating...
+                      </>
+                    ) : !recoverySessionReady ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Preparing secure session...
                       </>
                     ) : (
                       <>
